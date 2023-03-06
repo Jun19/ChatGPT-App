@@ -3,17 +3,24 @@ package com.jun.chatgpt
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -69,6 +76,7 @@ fun Greeting(viewModel: MainViewModel) {
                     Text(
                         text = "$suffix ${message.content}", color = Color.White
                     )
+                    leftView(suffix)
                     //TODO 左右头像 加。9图
                 }
             }
@@ -119,16 +127,35 @@ fun Greeting(viewModel: MainViewModel) {
 
 @Composable
 fun leftView(content: String) {
-    ConstraintLayout(modifier = Modifier.padding(start = 16.dp, end = 50.dp)) {
-        Text(text = content)
-
+    Row(modifier = Modifier.padding(start = 10.dp, end = 50.dp)) {
+        Image(
+            painter = painterResource(id = R.drawable.gpt_icon),
+            contentDescription = "",
+            modifier = Modifier
+                .size(50.dp)
+                .clip(CircleShape)
+        )
+        Text(text = content, modifier = Modifier.padding(start = 10.dp, top = 12.dp))
     }
+}
+
+@Composable
+fun rightView(content: String) {
+    ConstraintLayout() {
+        val (view1, view2) = createRefs()
+        Text(text = content, modifier = Modifier
+            .constrainAs(view1) {
+                end.linkTo(parent.end)
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+            }
+            .padding(start = 10.dp, top = 15.dp))
+    }
+
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    ChatgptTheme {
-        Greeting(get())
-    }
+    rightView("555")
 }
