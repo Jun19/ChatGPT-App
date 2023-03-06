@@ -11,7 +11,7 @@ import com.jun.template.common.exception.Failure
 import com.jun.template.common.net.NetworkHandler
 
 /**
- *
+ * 数据仓库
  *
  * @author Jun
  * @time 2023/3/5
@@ -54,7 +54,7 @@ class GptRepository(
             try {
                 Result.success(onCall.invoke())
             } catch (e: Throwable) {
-                //HttpException等错误会走这里
+                e.printStackTrace()
                 Result.failure(Failure.OtherError(e))
             }
         } else {
@@ -66,7 +66,7 @@ class GptRepository(
         return try {
             Result.success(onCall.invoke())
         } catch (e: Throwable) {
-            //HttpException等错误会走这里
+            e.printStackTrace()
             Result.failure(Failure.OtherError(e))
         }
 

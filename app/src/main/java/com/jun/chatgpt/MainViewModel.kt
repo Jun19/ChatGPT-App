@@ -38,12 +38,13 @@ class MainViewModel(private val _gptRepository: GptRepository) : ViewModel() {
         viewModelScope.launch {
             _gptRepository.insertMessage(message)
                 .onSuccess {
-                getAllMessage()
-                L.d("insert id $it")
-            }.onFailure { }
+                    getAllMessage()
+                    L.d("insert id $it")
+                }.onFailure { }
         }
     }
 
+    //发送消息
     fun sendContent(content: String) {
         val message = Message(content = content, role = Role.USER.roleName)
         viewModelScope.launch {
@@ -55,10 +56,15 @@ class MainViewModel(private val _gptRepository: GptRepository) : ViewModel() {
                 //把自己写的放到数据库
                 insertMessage(message = message)
                 add(message.toDTO())
-            }).onSuccess {
+            }).onSuccess { it ->
                 it.choices.forEach {
-                    //然后数据更新查询
-                    insertMessage(Message(content = it.message.content, role = it.message.role))
+                    //拿到数据后 插入到数据库
+                    insertMessage(
+                        Message(
+                            content = filterDrayMessage(it.message.content),
+                            role = it.message.role
+                        )
+                    )
                 }
             }.onFailure {
                 //no thing
@@ -66,7 +72,17 @@ class MainViewModel(private val _gptRepository: GptRepository) : ViewModel() {
         }
     }
 
-    fun clear(){
+    //过滤开头为\n的数据
+    private fun filterDrayMessage(message: String): String {
+        var newMessage = message
+        val nextLineSymbol = "\n"
+        while (newMessage.startsWith(nextLineSymbol)) {
+            newMessage = newMessage.split(nextLineSymbol)[1]
+        }
+        return newMessage
+    }
+
+    fun clear() {
         viewModelScope.launch {
             _gptRepository.clear().onSuccess {
                 getAllMessage()

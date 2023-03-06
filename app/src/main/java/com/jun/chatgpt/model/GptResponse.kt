@@ -1,12 +1,10 @@
 package com.jun.chatgpt.model
 
-import androidx.annotation.Keep
-
 import com.google.gson.annotations.SerializedName
 
 
 /**
- *
+ * 响应体
  *
  * @author Jun
  * @time 2023/3/5
