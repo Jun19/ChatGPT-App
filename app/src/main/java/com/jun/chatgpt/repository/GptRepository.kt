@@ -1,5 +1,7 @@
 package com.jun.chatgpt.repository
 
+import com.blankj.utilcode.util.ConvertUtils
+import com.blankj.utilcode.util.EncodeUtils
 import com.jun.chatgpt.model.GptRequest
 import com.jun.chatgpt.model.GptResponse
 import com.jun.chatgpt.model.Message
@@ -25,7 +27,8 @@ class GptRepository(
     suspend fun fetchMessage(messageList: List<MessageDTO>): Result<GptResponse> {
         return handleRemoteException {
             val gptRequest = GptRequest(messageList, Constants.CHAT_MODEL)
-            val authKey = "Bearer ${Constants.OPEN_AI_KEY}"
+            val authKey =
+                "Bearer ${ConvertUtils.bytes2String(EncodeUtils.base64Decode(Constants.OPEN_AI_KEY))}"
             val response = _gptApi.completions(authKey, gptRequest)
             response
         }

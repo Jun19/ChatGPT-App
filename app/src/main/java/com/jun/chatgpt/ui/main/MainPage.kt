@@ -91,7 +91,7 @@ fun MainPage(viewModel: MainPageViewModel) {
             val scrollState = rememberLazyListState()
             LazyColumn(state = scrollState) {
                 items(list.size) { position ->
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     val message = list[position]
                     if (message.role == Role.ASSISTANT.roleName) {
                         LeftView(message.content)
@@ -101,7 +101,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                         TipsView(message.content)
                     }
                     if (position == list.size - 1) {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }
@@ -166,7 +166,7 @@ fun LeftView(content: String) {
             contentScale = ContentScale.Crop
         )
         SelectionContainer() {
-            Card(modifier = Modifier.padding(start = 7.dp, top = 10.dp)) {
+            Card(modifier = Modifier.padding(start = 7.dp)) {
                 if (content.isEmpty()) {
                     TextCursorBlinking(
                         text = content,
@@ -195,7 +195,7 @@ fun RightView(content: String) {
         horizontalArrangement = Arrangement.End
     ) {
         SelectionContainer() {
-            Card(modifier = Modifier.padding(end = 7.dp, top = 10.dp)) {
+            Card(modifier = Modifier.padding(end = 7.dp)) {
                 Text(
                     text = content, color = Color.Black, modifier = Modifier.padding(15.dp)
                 )
