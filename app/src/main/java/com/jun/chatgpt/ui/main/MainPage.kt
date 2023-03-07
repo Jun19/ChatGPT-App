@@ -1,9 +1,12 @@
 package com.jun.chatgpt.ui.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -44,113 +47,132 @@ fun MainPage(viewModel: MainPageViewModel) {
     val list by viewModel.localList.observeAsState(emptyList())
 
     var text by remember { mutableStateOf("") }
+    var isVisible by remember { mutableStateOf(false) }
+    Box(modifier = Modifier.fillMaxSize()) {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            val (topR, listR, bottomR) = createRefs()
 
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (topR, listR, bottomR) = createRefs()
-        //头部 head
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .constrainAs(topR) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
-            .padding(top = 5.dp, start = 10.dp, end = 10.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_more),
-                contentDescription = "",
-                modifier = Modifier.padding(10.dp)
-            )
-            Text(text = stringResource(id = R.string.app_title), modifier = Modifier.padding(10.dp))
-            Image(
-                painter = painterResource(id = R.drawable.ic_clear),
-                contentDescription = "",
-                modifier = Modifier
-                    .clickable(interactionSource = MutableInteractionSource(),
-                        indication = null,
-                        onClick = {
-                            viewModel.clear()
-                        })
-                    .padding(10.dp)
-            )
-        }
-
-        //列表 list
-        Box(modifier = Modifier
-            .constrainAs(listR) {
-                top.linkTo(topR.bottom)
-                bottom.linkTo(bottomR.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                height = Dimension.fillToConstraints
-                width = Dimension.fillToConstraints
-            }
-            .background(Color.White)) {
-            val scrollState = rememberLazyListState()
-            LazyColumn(state = scrollState) {
-                items(list.size) { position ->
-                    Spacer(modifier = Modifier.height(10.dp))
-                    val message = list[position]
-                    if (message.role == Role.ASSISTANT.roleName) {
-                        LeftView(message.content)
-                    } else if (message.role == Role.USER.roleName) {
-                        RightView(message.content)
-                    } else if (message.role == Role.SYSTEAM.roleName) {
-                        TipsView(message.content)
+            //顶部栏
+            SmallTopAppBar(
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            stringResource(id = R.string.app_title),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
-                    if (position == list.size - 1) {
-                        Spacer(modifier = Modifier.height(10.dp))
+                },
+                navigationIcon = {
+                    IconButton(onClick = { isVisible = !isVisible }) {
+                        Icon(painter = painterResource(id = R.drawable.ic_more), "More")
                     }
-                }
-            }
-            if (list.isNotEmpty()) {
-                LaunchedEffect(key1 = list) {
-                    // 当 list 更新时，自动滚动到底部
-                    scrollState.animateScrollToItem(list.size - 1)
-                }
-            }
-        }
-        val keyboardController = LocalSoftwareKeyboardController.current
-
-        //底部栏 bottom
-        ConstraintLayout(modifier = Modifier.constrainAs(bottomR) {
-            bottom.linkTo(parent.bottom, margin = 0.dp)
-            start.linkTo(parent.start, margin = 0.dp)
-            width = Dimension.fillToConstraints
-            end.linkTo(parent.end)
-        }) {
-            val (textR, sendR) = createRefs()
-            TextField(value = text,
-                onValueChange = { text = it },
-                modifier = Modifier
-                    .constrainAs(textR) {
-                        start.linkTo(parent.start)
-                        end.linkTo(sendR.start)
-                        width = Dimension.fillToConstraints
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.clear() }) {
+                        Icon(painter = painterResource(id = R.drawable.ic_clear), "Clear")
                     }
-                    .padding(start = 5.dp, end = 5.dp),
-                maxLines = 3)
-            Button(onClick = {
-                keyboardController?.hide()
-                viewModel.sendContent(text)
-                text = ""
-            }, modifier = Modifier
-                .constrainAs(sendR) {
-                    end.linkTo(parent.end)
+                },
+                modifier = Modifier.constrainAs(topR) {
                     top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                 }
-                .padding(end = 5.dp)
-                .width(90.dp)) {
-                Text(text = stringResource(id = R.string.btn_send))
+            )
+
+            //列表 list
+            Box(modifier = Modifier
+                .constrainAs(listR) {
+                    top.linkTo(topR.bottom)
+                    bottom.linkTo(bottomR.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    height = Dimension.fillToConstraints
+                    width = Dimension.fillToConstraints
+                }
+                .background(Color.White)) {
+                val scrollState = rememberLazyListState()
+                LazyColumn(state = scrollState) {
+                    items(list.size) { position ->
+                        Spacer(modifier = Modifier.height(10.dp))
+                        val message = list[position]
+                        if (message.role == Role.ASSISTANT.roleName) {
+                            LeftView(message.content)
+                        } else if (message.role == Role.USER.roleName) {
+                            RightView(message.content)
+                        } else if (message.role == Role.SYSTEAM.roleName) {
+                            TipsView(message.content)
+                        }
+                        if (position == list.size - 1) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                    }
+                }
+                if (list.isNotEmpty()) {
+                    LaunchedEffect(key1 = list) {
+                        // 当 list 更新时，自动滚动到底部
+                        scrollState.animateScrollToItem(list.size - 1)
+                    }
+                }
+            }
+            val keyboardController = LocalSoftwareKeyboardController.current
+
+            //底部栏 bottom
+            ConstraintLayout(modifier = Modifier.constrainAs(bottomR) {
+                bottom.linkTo(parent.bottom, margin = 0.dp)
+                start.linkTo(parent.start, margin = 0.dp)
+                width = Dimension.fillToConstraints
+                end.linkTo(parent.end)
+            }) {
+                val (textR, sendR) = createRefs()
+                TextField(value = text,
+                    onValueChange = { text = it },
+                    modifier = Modifier
+                        .constrainAs(textR) {
+                            start.linkTo(parent.start)
+                            end.linkTo(sendR.start)
+                            width = Dimension.fillToConstraints
+                        }
+                        .padding(start = 5.dp, end = 5.dp),
+                    maxLines = 3)
+                Button(onClick = {
+                    keyboardController?.hide()
+                    viewModel.sendContent(text)
+                    text = ""
+                }, modifier = Modifier
+                    .constrainAs(sendR) {
+                        end.linkTo(parent.end)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    }
+                    .padding(end = 5.dp)
+                    .width(90.dp)) {
+                    Text(text = stringResource(id = R.string.btn_send))
+                }
             }
         }
-
+        if (isVisible) {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth },
+                    animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                ),
+                exit = slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth },
+                    animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                )
+            ) {
+                // 侧边栏内容
+                MainSideBar({ isVisible = !isVisible }, { isVisible = !isVisible })
+            }
+        }
     }
-
 }
+
+//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
