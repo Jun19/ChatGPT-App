@@ -13,7 +13,9 @@ sealed class Failure : Throwable() {
     /**
      * 网络错误
      */
-    object NetworkError : Failure()
+    object NetworkError : Failure() {
+        override val message = "Network UnAvailable"
+    }
 
     /**
      * 服务器返回的业务错误

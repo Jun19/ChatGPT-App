@@ -11,9 +11,12 @@ object Constants {
     const val DATABASE_NAME = "opengpt"
     const val PREFERENCE_NAME = "opengpt"
     const val BASE_API_URL = "https://api.openai.com/"
-    const val OPEN_AI_KEY = ""
+    const val OPEN_AI_KEY = "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"
 
     const val CHAT_MODEL = "gpt-3.5-turbo-0301"
+
+    const val NETWORK_TIME_OUT = 30L
+
 
     object Config {
         const val TEMP = "temp"

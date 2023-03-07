@@ -1,14 +1,12 @@
 package com.jun.chatgpt.di
 
-import com.jun.chatgpt.MainViewModel
+import com.jun.chatgpt.net.MyHttpClient
 import com.jun.chatgpt.repository.GptRepository
 import com.jun.chatgpt.repository.local.AppDatabase
 import com.jun.chatgpt.repository.remote.GptApi
+import com.jun.chatgpt.viewmodel.MainPageViewModel
 import com.jun.template.common.Constants
 import com.jun.template.common.net.NetworkHandler
-import com.jun.template.common.utils.L
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -17,17 +15,15 @@ import retrofit2.converter.gson.GsonConverterFactory
  * 注入
  *
  * @author Jun
- * @time 2022/2/18
+ * @time 2023/3/5
  */
 val appModule = module {
     single {
-        val httpLoggingInterceptor =
-            HttpLoggingInterceptor { message: String -> L.d("http log: $message") }
-        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build()
+        MyHttpClient()
     }
     single {
-        Retrofit.Builder().baseUrl(Constants.BASE_API_URL).client(get())
+        Retrofit.Builder().baseUrl(Constants.BASE_API_URL)
+            .client((get() as MyHttpClient).getClient())
             .addConverterFactory(GsonConverterFactory.create()).build()
     }
     single { NetworkHandler(get()) }
@@ -39,7 +35,7 @@ val dataModule = module {
     single { GptRepository(get(), get(), get()) }
 }
 val viewModelModule = module {
-    single { MainViewModel(get()) }
+    single { MainPageViewModel(get()) }
 }
 
 val allModules = appModule + dataModule + viewModelModule

@@ -9,13 +9,27 @@ import com.google.gson.annotations.SerializedName
  * @author Jun
  * @time 2023/3/5
  */
-data class GptResponse (
+data class GptResponse(
     @SerializedName("choices") val choices: List<Choice>,
     @SerializedName("created") val created: Int,
     @SerializedName("id") val id: String,
     @SerializedName("model") val model: String,
     @SerializedName("object") val objectX: String,
-    @SerializedName("usage") val usage: Usage
+    @SerializedName("usage") val usage: Usage,
+    @SerializedName("error")
+    val error: Error?
+
+)
+
+data class Error(
+    @SerializedName("code")
+    val code: String,
+    @SerializedName("message")
+    val message: String,
+    @SerializedName("param")
+    val `param`: Any,
+    @SerializedName("type")
+    val type: String
 )
 
 data class Choice(
