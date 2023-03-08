@@ -31,8 +31,10 @@ val appModule = module {
 }
 val dataModule = module {
     single { (get() as Retrofit).create(GptApi::class.java) }
-    single { AppDatabase.getDBInstance(get()).messageDao() }
-    single { GptRepository(get(), get(), get()) }
+    single { AppDatabase.getDBInstance(get()).getMessageDao() }
+    single { AppDatabase.getDBInstance(get()).getSessionDao() }
+    single { AppDatabase.getDBInstance(get()).getTemplateDao() }
+    single { GptRepository(get(), get(), get(), get(), get()) }
 }
 val viewModelModule = module {
     single { MainPageViewModel(get()) }

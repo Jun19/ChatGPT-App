@@ -12,11 +12,12 @@ import com.jun.chatgpt.model.enums.MessageStatus
  * @author Jun
  * @time 2023/3/5
  */
-@Entity
+@Entity(tableName = "message")
 data class Message(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @Expose @SerializedName("role") val role: String,
     @Expose @SerializedName("content") val content: String,
+    val sessionId: Int = 0,
     //响应时间
     val responseTime: Long = 1,
     //插入时间

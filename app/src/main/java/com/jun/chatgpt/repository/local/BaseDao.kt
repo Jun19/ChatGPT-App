@@ -14,7 +14,7 @@ import androidx.room.Update
  */
 interface BaseDao<T> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(t: T):Long
+    fun insert(t: T): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(list: MutableList<T>)

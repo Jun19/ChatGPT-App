@@ -9,8 +9,12 @@ import androidx.room.PrimaryKey
  * @author Jun
  * @time 2023/3/5
  */
-@Entity
+@Entity(tableName = "session")
 data class Session(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    ) {
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val title: String,
+    val lastSessionTime: Long
+) {
+
 }

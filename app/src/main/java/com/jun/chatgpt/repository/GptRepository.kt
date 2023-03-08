@@ -2,11 +2,10 @@ package com.jun.chatgpt.repository
 
 import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.EncodeUtils
-import com.jun.chatgpt.model.GptRequest
-import com.jun.chatgpt.model.GptResponse
-import com.jun.chatgpt.model.Message
-import com.jun.chatgpt.model.MessageDTO
+import com.jun.chatgpt.model.*
 import com.jun.chatgpt.repository.local.MessageDao
+import com.jun.chatgpt.repository.local.SessionDao
+import com.jun.chatgpt.repository.local.TemplateDao
 import com.jun.chatgpt.repository.remote.GptApi
 import com.jun.template.common.Constants
 import com.jun.template.common.exception.Failure
@@ -20,7 +19,9 @@ import com.jun.template.common.net.NetworkHandler
  */
 class GptRepository(
     private val _gptApi: GptApi,
-    private val _gptDao: MessageDao,
+    private val _messageDao: MessageDao,
+    private val _sessionDao: SessionDao,
+    private val _templateDao: TemplateDao,
     private val _netWorkHandler: NetworkHandler
 ) {
 
@@ -36,19 +37,56 @@ class GptRepository(
 
     suspend fun insertMessage(message: Message): Result<Long> {
         return handleException {
-            _gptDao.insert(message)
+            _messageDao.insert(message)
         }
     }
 
-    suspend fun clear(): Result<Unit> {
+    suspend fun createSession(session: Session): Result<Long> {
         return handleException {
-            _gptDao.deleteAll()
+            _sessionDao.insert(session)
+        }
+    }
+
+    suspend fun queryAllSession(): Result<List<Session>> {
+        return handleException {
+            _sessionDao.selectAllSession()
+        }
+    }
+
+    suspend fun queryLeastSession(): Result<Session?> {
+        return handleException {
+            _sessionDao.selectLeastSession()
+        }
+    }
+
+    suspend fun updateSessionTime(id: Int, lastSessionTime: Long): Result<Unit> {
+        return handleException {
+            _sessionDao.updateSessionTime(id, lastSessionTime)
+        }
+    }
+
+    suspend fun updateSessionTitle(id: Int, title: String): Result<Unit> {
+        return handleException {
+            _sessionDao.updateSessionTitle(id, title)
+        }
+    }
+
+    suspend fun queryMessageBySID(sessionID: Int): Result<List<Message>> {
+        return handleException {
+            _messageDao.selectMessageBySessionID(sessionID)
+        }
+    }
+
+    suspend fun clear(session: Session): Result<Unit> {
+        return handleException {
+            _messageDao.deleteAll(session.id)
+            _sessionDao.delete(session)
         }
     }
 
     suspend fun getAllMessage(): Result<List<Message>> {
         return handleException {
-            _gptDao.fetchAll()
+            _messageDao.fetchAll()
         }
     }
 

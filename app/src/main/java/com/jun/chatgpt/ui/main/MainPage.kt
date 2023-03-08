@@ -44,7 +44,8 @@ import com.jun.chatgpt.widget.TextCursorBlinking
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MainPage(viewModel: MainPageViewModel) {
-    val list by viewModel.localList.observeAsState(emptyList())
+    val list by viewModel.messageList.observeAsState(emptyList())
+    val sessionList by viewModel.sessionList.observeAsState(emptyList())
 
     var text by remember { mutableStateOf("") }
     var isVisible by remember { mutableStateOf(false) }
@@ -166,13 +167,16 @@ fun MainPage(viewModel: MainPageViewModel) {
                 )
             ) {
                 // 侧边栏内容
-                MainSideBar({ isVisible = !isVisible }, { isVisible = !isVisible })
+                MainSideBar(sessionList, {
+                    viewModel.startNewSession()
+                    isVisible = !isVisible
+                }, { isVisible = !isVisible }, { session ->
+                    viewModel.switchSession(session)
+                })
             }
         }
     }
 }
-
-//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)

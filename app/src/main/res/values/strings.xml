@@ -3,4 +3,6 @@
     <string name="app_title">ChatGPT</string>
     <string name="error_tips">Error Tips :</string>
     <string name="btn_send">Send</string>
+    <string name="bar_session">Session</string>
+    <string name="bar_new_session">New Session</string>
 </resources>
