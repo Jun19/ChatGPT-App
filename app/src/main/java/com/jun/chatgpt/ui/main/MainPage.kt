@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.jun.chatgpt.R
+import com.jun.chatgpt.model.Session
 import com.jun.chatgpt.model.enums.Role
 import com.jun.chatgpt.viewmodel.MainPageViewModel
 import com.jun.chatgpt.widget.TextCursorBlinking
@@ -46,6 +47,12 @@ import com.jun.chatgpt.widget.TextCursorBlinking
 fun MainPage(viewModel: MainPageViewModel) {
     val list by viewModel.messageList.observeAsState(emptyList())
     val sessionList by viewModel.sessionList.observeAsState(emptyList())
+    val currentSession by viewModel.currentSession.observeAsState(
+        Session(
+            title = "",
+            lastSessionTime = System.currentTimeMillis()
+        )
+    )
 
     var text by remember { mutableStateOf("") }
     var isVisible by remember { mutableStateOf(false) }
@@ -167,7 +174,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                 )
             ) {
                 // 侧边栏内容
-                MainSideBar(sessionList, {
+                MainSideBar(sessionList, currentSession, {
                     viewModel.startNewSession()
                     isVisible = !isVisible
                 }, { isVisible = !isVisible }, { session ->

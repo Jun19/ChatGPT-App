@@ -42,7 +42,10 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         viewModelScope.launch {
             //查询最新的会话
             _gptRepository.queryLeastSession().onSuccess {
+                L.d("success")
                 setSessionDetail(it)
+            }.onFailure {
+                L.d("fail")
             }
         }
     }
@@ -68,6 +71,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     }
 
     private fun setSessionDetail(session: Session?) {
+//        messageTask?.cancel()
         viewModelScope.launch {
             if (session == null) {
                 //说明还没会话记录 新建一个
@@ -88,53 +92,55 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         }
     }
 
-    private fun getAllMessage() {
-        viewModelScope.launch {
-            _gptRepository.getAllMessage().onSuccess {
-                _messageList.value = it
-                L.d(it.toString())
-            }.onFailure { }
+    private fun updateList(sessionId: Int, onUpdate: (MutableList<Message>) -> Unit) {
+        //判断当前message 的session id 是否和_currentSession的 id 是否相同
+        if (getCurrentSessionId() == sessionId) {
+            _messageList.value = _messageList.value?.toMutableList()?.apply {
+                onUpdate.invoke(this)
+            }
+        } else {
+            //不相同则不处理
         }
-    }
 
-    private fun updateList(onUpdate: (MutableList<Message>) -> Unit) {
-        _messageList.value = _messageList.value?.toMutableList()?.apply {
-            onUpdate.invoke(this)
-        }
     }
 
     private fun insertMessage(message: Message) {
         viewModelScope.launch {
             //同时更新会话记录
-            val currentSession = _currentSession.value!!
             if (message.role == Role.USER.roleName) {
-                updateSessionTitle(currentSession.id, message.content)
+                updateSessionTitle(message.sessionId, message.content)
             }
             //更新会话的最后时间
-            updateSessionTime(currentSession.id)
+            updateSessionTime(message.sessionId)
             _gptRepository.insertMessage(message).onSuccess {
+                val sessionId = message.sessionId
                 if (message.role == Role.USER.roleName) {
-                    updateList {
+                    updateList(sessionId) {
                         it.add(message)
                     }
                     //添加一个空的响应
-                    updateList {
+                    updateList(sessionId) {
                         it.add(Message(content = "", role = Role.ASSISTANT.roleName))
                     }
                 } else {
-                    updateList {
+                    updateList(sessionId) {
                         if (it.size > 1) {
                             //删除最后一个
                             it.removeAt(it.size - 1)
                         }
                     }
-                    updateList {
+                    updateList(sessionId) {
                         it.add(message)
                     }
                 }
-                L.d("insert message $message")
+                L.d("insert message $message ${getCurrentSessionId()}")
             }.onFailure { }
         }
+    }
+
+
+    private fun getCurrentSessionId(): Int {
+        return _currentSession.value!!.id
     }
 
     //更新会话操作时间
@@ -159,12 +165,14 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
     //发送消息
     fun sendContent(content: String) {
-        val message = Message(
-            sessionId = _currentSession.value!!.id,
-            content = content,
-            role = Role.USER.roleName
-        )
+//        messageTask?.cancel()
         viewModelScope.launch {
+            val sessionId = getCurrentSessionId()
+            val message = Message(
+                sessionId = sessionId,
+                content = content,
+                role = Role.USER.roleName
+            )
             _gptRepository.fetchMessage(mutableListOf<MessageDTO>().apply {
                 //把之前聊天记录给带上 并且不带上系统提示
                 _messageList.value?.filter { it.role != Role.SYSTEAM.roleName }?.forEach {
@@ -174,20 +182,28 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                 insertMessage(message = message)
                 add(message.toDTO())
             }).onSuccess { it ->
-                dataProcess(it)
+                dataProcess(it, sessionId)
             }.onFailure {
                 //错误提示
-                insertMessage(Message(content = it.toString(), role = Role.SYSTEAM.roleName))
+                insertMessage(
+                    Message(
+                        sessionId = sessionId,
+                        content = it.toString(),
+                        role = Role.SYSTEAM.roleName
+                    )
+                )
             }
         }
     }
 
-    private fun dataProcess(gtpResponse: GptResponse) {
+    private fun dataProcess(gtpResponse: GptResponse, sessionId: Int) {
         //错误
         if (gtpResponse.error != null) {
             insertMessage(
                 Message(
-                    content = gtpResponse.error.message, role = Role.SYSTEAM.roleName
+                    content = gtpResponse.error.message,
+                    role = Role.SYSTEAM.roleName,
+                    sessionId = sessionId,
                 )
             )
         } else {
@@ -195,7 +211,8 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                 //拿到数据后 插入到数据库
                 insertMessage(
                     Message(
-                        content = filterDrayMessage(it.message.content), role = it.message.role
+                        content = filterDrayMessage(it.message.content), role = it.message.role,
+                        sessionId = sessionId,
                     )
                 )
             }

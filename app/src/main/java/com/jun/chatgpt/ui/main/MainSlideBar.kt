@@ -10,8 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +30,7 @@ import com.jun.chatgpt.model.Session
 @Composable
 fun MainSideBar(
     list: List<Session>,
+    currentSession: Session,
     onButtonClick: () -> Unit,
     onOutSideClick: () -> Unit,
     onItemClick: (Session) -> Unit,
@@ -66,6 +69,7 @@ fun MainSideBar(
                 Text(text = stringResource(id = com.jun.chatgpt.R.string.bar_new_session))
             }
             val scrollState = rememberLazyListState()
+            val local = LocalContext.current
             LazyColumn(state = scrollState) {
                 items(list.size) { position ->
                     Spacer(modifier = Modifier.height(10.dp))
@@ -82,7 +86,13 @@ fun MainSideBar(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp),
-                            style = MaterialTheme.typography.titleMedium
+                            textDecoration = if (session.id == currentSession.id) {
+                                TextDecoration.Underline
+                            } else {
+                                TextDecoration.None
+                            },
+                            color = Color.Black,
+                            style = MaterialTheme.typography.titleMedium,
                         )
                     }
 //                    if (position == list.size - 1) {
@@ -99,12 +109,14 @@ fun MainSideBar(
 @Composable
 @Preview
 fun preview() {
+    val currentSession =
+        Session(id = 1, title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis())
     MainSideBar(mutableListOf<Session>().apply {
         add(Session(title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
         add(Session(title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
         add(Session(title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
-        add(Session(title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
-    }, onButtonClick = { }, {}) {
+        add(Session(id = 1, title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
+    }, currentSession, onButtonClick = { }, {}) {
 
     }
 }
