@@ -221,14 +221,17 @@ fun LeftView(content: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RightView(content: String) {
-    Row(
+    ConstraintLayout(
         modifier = Modifier
-            .padding(end = 10.dp, start = 60.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.End
+            .padding(end = 10.dp)
+            .fillMaxWidth()
     ) {
-        SelectionContainer() {
-            Card(modifier = Modifier.padding(end = 7.dp)) {
+        val (head, text) = createRefs()
+        SelectionContainer(modifier = Modifier.constrainAs(text) {
+            top.linkTo(head.top)
+            end.linkTo(head.start)
+        }) {
+            Card(modifier = Modifier.padding(start = 108.dp, end = 7.dp)) {
                 Text(
                     text = content, color = Color.Black, modifier = Modifier.padding(15.dp)
                 )
@@ -239,9 +242,21 @@ fun RightView(content: String) {
             contentDescription = "",
             modifier = Modifier
                 .size(45.dp)
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .constrainAs(head) {
+                    end.linkTo(parent.end)
+                    top.linkTo(parent.top)
+                },
             contentScale = ContentScale.Crop
         )
+    }
+    Row(
+        modifier = Modifier
+            .padding(end = 10.dp, start = 60.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+
 
     }
 }
@@ -270,5 +285,5 @@ fun TipsView(content: String) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    TipsView("555")
+    RightView("55AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5")
 }

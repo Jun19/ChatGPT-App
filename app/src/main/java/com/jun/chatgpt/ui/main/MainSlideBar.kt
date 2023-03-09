@@ -10,14 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.jun.chatgpt.R
 import com.jun.chatgpt.model.Session
 
 /**
@@ -69,7 +68,6 @@ fun MainSideBar(
                 Text(text = stringResource(id = com.jun.chatgpt.R.string.bar_new_session))
             }
             val scrollState = rememberLazyListState()
-            val local = LocalContext.current
             LazyColumn(state = scrollState) {
                 items(list.size) { position ->
                     Spacer(modifier = Modifier.height(10.dp))
@@ -80,27 +78,27 @@ fun MainSideBar(
                     ) {
                         onItemClick.invoke(session)
                     }) {
+                        val title = if (session.title.isNullOrEmpty()) {
+                            stringResource(id = R.string.bar_session_item) + (position + 1)
+                        } else {
+                            session.title
+                        }
                         Text(
-                            text = session.title,
+                            text = title,
                             maxLines = 1,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp),
-                            textDecoration = if (session.id == currentSession.id) {
-                                TextDecoration.Underline
+                            color = if (session.id == currentSession.id) {
+                                MaterialTheme.colorScheme.primary
                             } else {
-                                TextDecoration.None
+                                Color.Black
                             },
-                            color = Color.Black,
                             style = MaterialTheme.typography.titleMedium,
                         )
                     }
-//                    if (position == list.size - 1) {
-//                        Spacer(modifier = Modifier.height(10.dp))
-//                    }
                 }
             }
-//            LazyColumn(content = )
         }
     }
 
