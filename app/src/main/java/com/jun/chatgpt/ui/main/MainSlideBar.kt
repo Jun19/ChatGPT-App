@@ -6,6 +6,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,6 +35,7 @@ fun MainSideBar(
     onButtonClick: () -> Unit,
     onOutSideClick: () -> Unit,
     onItemClick: (Session) -> Unit,
+    onDeleteClick: (Session) -> Unit
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -47,56 +50,88 @@ fun MainSideBar(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(200.dp)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable(
                     onClick = {},
                     indication = null,
                     interactionSource = MutableInteractionSource()
                 )
-                .background(Color.White)
                 .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 16.dp)
         ) {
-            Text(
-                text = stringResource(id = com.jun.chatgpt.R.string.bar_session),
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
             Button(
                 onClick = { onButtonClick.invoke() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = stringResource(id = com.jun.chatgpt.R.string.bar_new_session))
             }
+            Text(
+                text = stringResource(id = com.jun.chatgpt.R.string.bar_session),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
+            )
             val scrollState = rememberLazyListState()
             LazyColumn(state = scrollState) {
                 items(list.size) { position ->
-                    Spacer(modifier = Modifier.height(10.dp))
                     val session = list[position]
-                    Card(modifier = Modifier.clickable(
-                        indication = null,
-                        interactionSource = MutableInteractionSource()
-                    ) {
-                        onItemClick.invoke(session)
-                    }) {
-                        val title = if (session.title.isNullOrEmpty()) {
-                            stringResource(id = R.string.bar_session_item) + (position + 1)
-                        } else {
-                            session.title
-                        }
-                        Text(
-                            text = title,
-                            maxLines = 1,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp),
-                            color = if (session.id == currentSession.id) {
-                                MaterialTheme.colorScheme.primary
+                    val isMe = session.id == currentSession.id
+                    Card(
+                        modifier = Modifier.clickable(
+                            indication = null,
+                            interactionSource = MutableInteractionSource()
+                        ) {
+                            onItemClick.invoke(session)
+                        }) {
+                        ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
+                            val (textR, cleaR) = createRefs()
+                            val title = if (session.title.isNullOrEmpty()) {
+                                stringResource(id = R.string.bar_session_item) + (position + 1)
                             } else {
-                                Color.Black
-                            },
-                            style = MaterialTheme.typography.titleMedium,
-                        )
+                                session.title
+                            }
+                            Text(
+                                text = title,
+                                maxLines = 1,
+                                modifier = Modifier
+                                    .constrainAs(textR) {
+                                        start.linkTo(parent.start)
+                                        end.linkTo(cleaR.start)
+                                        top.linkTo(parent.top)
+                                    }
+                                    .padding(
+                                        start = 20.dp,
+                                        top = 10.dp,
+                                        bottom = 10.dp,
+                                        end = 10.dp
+                                    )
+                                    .fillMaxWidth(),
+                                color = if (isMe) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    Color.Black
+                                },
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            if (isMe) {
+                                IconButton(
+                                    onClick = {
+                                        onDeleteClick.invoke(session)
+                                    },
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .height(30.dp)
+                                        .constrainAs(cleaR) {
+                                            end.linkTo(parent.end)
+                                            top.linkTo(parent.top)
+                                            bottom.linkTo(parent.bottom)
+                                        }
+                                ) {
+                                    Icon(Icons.Filled.Clear, contentDescription = null)
+                                }
+                            }
+                        }
                     }
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }
@@ -108,13 +143,17 @@ fun MainSideBar(
 @Preview
 fun preview() {
     val currentSession =
-        Session(id = 1, title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis())
+        Session(
+            id = 1,
+            title = "你号asdada吗啊asdasda 啊啊 ",
+            lastSessionTime = System.currentTimeMillis()
+        )
     MainSideBar(mutableListOf<Session>().apply {
-        add(Session(title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
-        add(Session(title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
-        add(Session(title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
-        add(Session(id = 1, title = "你号吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
-    }, currentSession, onButtonClick = { }, {}) {
+        add(Session(title = "你号吗dadada啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
+        add(Session(title = "你号吗dada啊 啊啊asdadas ", lastSessionTime = System.currentTimeMillis()))
+        add(Session(title = "你号吗dada啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
+        add(Session(id = 1, title = "你号dada吗啊 啊啊 ", lastSessionTime = System.currentTimeMillis()))
+    }, currentSession, onButtonClick = { }, {}, {}) {
 
     }
 }

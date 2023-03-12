@@ -25,6 +25,14 @@ class GptRepository(
     private val _netWorkHandler: NetworkHandler
 ) {
 
+
+    //**Message**//
+    suspend fun queryMessageBySID(sessionID: Int): Result<List<Message>> {
+        return handleException {
+            _messageDao.selectMessageBySessionID(sessionID)
+        }
+    }
+
     suspend fun fetchMessage(messageList: List<MessageDTO>): Result<GptResponse> {
         return handleRemoteException {
             val gptRequest = GptRequest(messageList, Constants.CHAT_MODEL)
@@ -41,6 +49,20 @@ class GptRepository(
         }
     }
 
+    suspend fun insertMessages(messages: List<Message>): Result<Unit> {
+        return handleException {
+            _messageDao.insert(messages)
+        }
+    }
+
+    suspend fun queryAllMessage(): Result<List<Message>> {
+        return handleException {
+            _messageDao.queryAll()
+        }
+    }
+
+
+    //**Session**//
     suspend fun createSession(session: Session): Result<Long> {
         return handleException {
             _sessionDao.insert(session)
@@ -49,13 +71,13 @@ class GptRepository(
 
     suspend fun queryAllSession(): Result<List<Session>> {
         return handleException {
-            _sessionDao.selectAllSession()
+            _sessionDao.queryAllSession()
         }
     }
 
     suspend fun queryLeastSession(): Result<Session?> {
         return handleException {
-            _sessionDao.selectLeastSession()
+            _sessionDao.queryLeastSession()
         }
     }
 
@@ -71,11 +93,6 @@ class GptRepository(
         }
     }
 
-    suspend fun queryMessageBySID(sessionID: Int): Result<List<Message>> {
-        return handleException {
-            _messageDao.selectMessageBySessionID(sessionID)
-        }
-    }
 
     suspend fun clear(session: Session): Result<Unit> {
         return handleException {
@@ -84,9 +101,27 @@ class GptRepository(
         }
     }
 
-    suspend fun getAllMessage(): Result<List<Message>> {
+    suspend fun saveTemplate(name: String, content: String): Result<Long> {
         return handleException {
-            _messageDao.fetchAll()
+            _templateDao.insert(Template(tempContent = content, name = name))
+        }
+    }
+
+    suspend fun updateTemplateName(name: String, id: Int): Result<Unit> {
+        return handleException {
+            _templateDao.updateTemplateName(name, id)
+        }
+    }
+
+    suspend fun deleteTemplate(id: Int): Result<Unit> {
+        return handleException {
+            _templateDao.delete(Template(id = id))
+        }
+    }
+
+    suspend fun queryAllTemplate(): Result<List<Template>> {
+        return handleException {
+            _templateDao.queryAll()
         }
     }
 

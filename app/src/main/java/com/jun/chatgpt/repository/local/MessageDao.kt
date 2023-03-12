@@ -8,7 +8,7 @@ import com.jun.chatgpt.model.Message
 @Dao
 interface MessageDao : BaseDao<Message> {
     @Query("SELECT * FROM message")
-    suspend fun fetchAll(): List<Message>
+    suspend fun queryAll(): List<Message>
 
     @Transaction
     @Query("select * from message where sessionId=:sessionId")

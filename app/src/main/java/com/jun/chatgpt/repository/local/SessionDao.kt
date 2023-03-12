@@ -8,10 +8,10 @@ import com.jun.chatgpt.model.Session
 interface SessionDao : BaseDao<Session> {
 
     @Query("select * from session order by lastSessionTime desc")
-    fun selectAllSession(): List<Session>
+    fun queryAllSession(): List<Session>
 
     @Query(" select * from session order by lastSessionTime desc limit 1 ")
-    fun selectLeastSession(): Session?
+    fun queryLeastSession(): Session?
 
     @Query("update session set lastSessionTime=:lastSessionTime where id=:id")
     fun updateSessionTime(id: Int, lastSessionTime: Long)

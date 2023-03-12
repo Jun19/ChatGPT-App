@@ -3,7 +3,17 @@
     <string name="app_title">ChatGPT</string>
     <string name="error_tips">Error Tips :</string>
     <string name="btn_send">Send</string>
-    <string name="bar_session">Session</string>
+    <string name="bar_session">Session List:</string>
     <string name="bar_new_session">New Session</string>
-    <string name="bar_session_item">session</string>
+    <string name="bar_session_item">Session</string>
+    <string name="more_templates_create">Save as Template</string>
+    <string name="more_template_list">Template List</string>
+    <string name="more_clear">Clear Now Session</string>
+
+    <string name="dialog_confirm">Confirm</string>
+    <string name="dialog_cancel">Cancel</string>
+
+    <string name="dialog_template_empty_tips">name cannot be empty</string>
+    <string name="dialog_template_add_tips">You must send some messages</string>
+    <string name="dialog_save_success_tips">Saved successfully</string>
 </resources>

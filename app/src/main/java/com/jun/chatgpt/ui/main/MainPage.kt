@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -45,14 +47,16 @@ import com.jun.chatgpt.widget.TextCursorBlinking
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MainPage(viewModel: MainPageViewModel) {
-    val list by viewModel.messageList.observeAsState(emptyList())
+    val messageList by viewModel.messageList.observeAsState(emptyList())
     val sessionList by viewModel.sessionList.observeAsState(emptyList())
+    val templateList by viewModel.templateList.observeAsState(emptyList())
     val currentSession by viewModel.currentSession.observeAsState(
         Session(
             title = "",
             lastSessionTime = System.currentTimeMillis()
         )
     )
+    var isOpenPop by remember { mutableStateOf(false) }
 
     var text by remember { mutableStateOf("") }
     var isVisible by remember { mutableStateOf(false) }
@@ -79,8 +83,10 @@ fun MainPage(viewModel: MainPageViewModel) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.clear() }) {
-                        Icon(painter = painterResource(id = R.drawable.ic_clear), "Clear")
+                    IconButton(onClick = {
+                        isOpenPop = !isOpenPop
+                    }) {
+                        Icon(Icons.Filled.PlayArrow, "Info")
                     }
                 },
                 modifier = Modifier.constrainAs(topR) {
@@ -103,9 +109,9 @@ fun MainPage(viewModel: MainPageViewModel) {
                 .background(Color.White)) {
                 val scrollState = rememberLazyListState()
                 LazyColumn(state = scrollState) {
-                    items(list.size) { position ->
+                    items(messageList.size) { position ->
                         Spacer(modifier = Modifier.height(10.dp))
-                        val message = list[position]
+                        val message = messageList[position]
                         if (message.role == Role.ASSISTANT.roleName) {
                             LeftView(message.content)
                         } else if (message.role == Role.USER.roleName) {
@@ -113,15 +119,15 @@ fun MainPage(viewModel: MainPageViewModel) {
                         } else if (message.role == Role.SYSTEAM.roleName) {
                             TipsView(message.content)
                         }
-                        if (position == list.size - 1) {
+                        if (position == messageList.size - 1) {
                             Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
                 }
-                if (list.isNotEmpty()) {
-                    LaunchedEffect(key1 = list) {
+                if (messageList.isNotEmpty()) {
+                    LaunchedEffect(key1 = messageList) {
                         // 当 list 更新时，自动滚动到底部
-                        scrollState.animateScrollToItem(list.size - 1)
+                        scrollState.animateScrollToItem(messageList.size - 1)
                     }
                 }
             }
@@ -147,7 +153,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                     maxLines = 3)
                 Button(onClick = {
                     keyboardController?.hide()
-                    viewModel.sendContent(text)
+                    viewModel.sendMessage(text)
                     text = ""
                 }, modifier = Modifier
                     .constrainAs(sendR) {
@@ -161,6 +167,8 @@ fun MainPage(viewModel: MainPageViewModel) {
                 }
             }
         }
+
+        // 侧边栏内容
         if (isVisible) {
             AnimatedVisibility(
                 visible = isVisible,
@@ -173,15 +181,34 @@ fun MainPage(viewModel: MainPageViewModel) {
                     animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
                 )
             ) {
-                // 侧边栏内容
                 MainSideBar(sessionList, currentSession, {
                     viewModel.startNewSession()
                     isVisible = !isVisible
                 }, { isVisible = !isVisible }, { session ->
                     viewModel.switchSession(session)
+                }, {
+                    viewModel.deleteCurrentSession()
                 })
             }
         }
+
+
+        //popwindow
+        if (isOpenPop) {
+            MainPop(
+                templateList,
+                messageList.size,
+                onCloseCallback = { isOpenPop = false },
+                onSaveTemplate = {
+                    viewModel.saveTemplate(it, messageList)
+                },
+                onTemplateDelete = {
+                    viewModel.deleteTemplate(it.id)
+                }, onTemplateLoad = {
+                    viewModel.loadTemplate(it)
+                })
+        }
+
     }
 }
 

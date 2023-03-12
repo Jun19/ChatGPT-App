@@ -13,6 +13,7 @@ import androidx.room.PrimaryKey
 data class Template(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val tempContent: String = "",
-    val name: String = ""
+    val name: String = "",
+    val time: Long = System.currentTimeMillis()
 ) {
 }
