@@ -169,27 +169,25 @@ fun MainPage(viewModel: MainPageViewModel) {
         }
 
         // 侧边栏内容
-        if (isVisible) {
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = slideInHorizontally(
-                    initialOffsetX = { fullWidth -> -fullWidth },
-                    animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
-                ),
-                exit = slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> -fullWidth },
-                    animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
-                )
-            ) {
-                MainSideBar(sessionList, currentSession, {
-                    viewModel.startNewSession()
-                    isVisible = !isVisible
-                }, { isVisible = !isVisible }, { session ->
-                    viewModel.switchSession(session)
-                }, {
-                    viewModel.deleteCurrentSession()
-                })
-            }
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInHorizontally(
+                initialOffsetX = { fullWidth -> -fullWidth },
+                animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+            ),
+            exit = slideOutHorizontally(
+                targetOffsetX = { fullWidth -> -fullWidth },
+                animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+            )
+        ) {
+            MainSideBar(sessionList, currentSession, {
+                viewModel.startNewSession()
+                isVisible = !isVisible
+            }, { isVisible = !isVisible }, { session ->
+                viewModel.switchSession(session)
+            }, {
+                viewModel.deleteCurrentSession()
+            })
         }
 
 

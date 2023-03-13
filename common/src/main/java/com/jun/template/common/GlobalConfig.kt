@@ -12,5 +12,6 @@ import com.jun.template.common.utils.persistence.Preference
 @SuppressLint("StaticFieldLeak")
 object GlobalConfig {
     var temp: String by Preference(Constants.Config.TEMP, "")
+    var apiKey: String by Preference(Constants.Config.API_KEY, "")
 
 }

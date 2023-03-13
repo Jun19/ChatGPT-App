@@ -1,13 +1,12 @@
 package com.jun.chatgpt.repository
 
-import com.blankj.utilcode.util.ConvertUtils
-import com.blankj.utilcode.util.EncodeUtils
 import com.jun.chatgpt.model.*
 import com.jun.chatgpt.repository.local.MessageDao
 import com.jun.chatgpt.repository.local.SessionDao
 import com.jun.chatgpt.repository.local.TemplateDao
 import com.jun.chatgpt.repository.remote.GptApi
 import com.jun.template.common.Constants
+import com.jun.template.common.GlobalConfig
 import com.jun.template.common.exception.Failure
 import com.jun.template.common.net.NetworkHandler
 
@@ -37,7 +36,7 @@ class GptRepository(
         return handleRemoteException {
             val gptRequest = GptRequest(messageList, Constants.CHAT_MODEL)
             val authKey =
-                "Bearer ${ConvertUtils.bytes2String(EncodeUtils.base64Decode(Constants.OPEN_AI_KEY))}"
+                "Bearer ${GlobalConfig.apiKey}"
             val response = _gptApi.completions(authKey, gptRequest)
             response
         }

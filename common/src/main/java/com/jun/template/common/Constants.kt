@@ -22,5 +22,6 @@ object Constants {
 
     object Config {
         const val TEMP = "temp"
+        const val API_KEY = "api_key"
     }
 }

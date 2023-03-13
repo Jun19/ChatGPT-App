@@ -12,8 +12,13 @@
 
     <string name="dialog_confirm">Confirm</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="about_title">About</string>
+    <string name="change_key">Change API Key</string>
+    <string name="recommend_content">I recommend that you use the openai key you applied for to avoid the situation that the current key is unavailable</string>
 
     <string name="dialog_template_empty_tips">name cannot be empty</string>
+    <string name="dialog_api_empty_tips">api key cannot be empty</string>
     <string name="dialog_template_add_tips">You must send some messages</string>
     <string name="dialog_save_success_tips">Saved successfully</string>
+    <string name="dialog_key_change_tips">Changed successfully</string>
 </resources>

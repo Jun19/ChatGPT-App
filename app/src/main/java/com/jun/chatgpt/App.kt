@@ -2,8 +2,11 @@ package com.jun.chatgpt
 
 import android.app.Application
 import androidx.multidex.MultiDex
+import com.blankj.utilcode.util.ConvertUtils
+import com.blankj.utilcode.util.EncodeUtils
 import com.jun.chatgpt.di.allModules
 import com.jun.template.common.Constants
+import com.jun.template.common.GlobalConfig
 import com.jun.template.common.utils.persistence.Preference
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.FormatStrategy
@@ -19,7 +22,7 @@ import kotlin.properties.Delegates
  * App
  *
  * @author Jun
- * @time 2023/3/ 5
+ * @time 2023/3/5
  */
 class App : Application() {
     companion object {
@@ -33,6 +36,11 @@ class App : Application() {
         initLogger()
         initMultiDex()
         initKoin()
+        //set openai api key
+        if (GlobalConfig.apiKey.isEmpty()) {
+            GlobalConfig.apiKey =
+                ConvertUtils.bytes2String(EncodeUtils.base64Decode(Constants.OPEN_AI_KEY))
+        }
     }
 
     private fun initLogger() {

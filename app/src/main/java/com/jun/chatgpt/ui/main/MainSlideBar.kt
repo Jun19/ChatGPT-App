@@ -1,5 +1,6 @@
 package com.jun.chatgpt.ui.main
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -37,6 +38,7 @@ fun MainSideBar(
     onItemClick: (Session) -> Unit,
     onDeleteClick: (Session) -> Unit
 ) {
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -46,6 +48,7 @@ fun MainSideBar(
                 interactionSource = MutableInteractionSource()
             ) { onOutSideClick.invoke() }
     ) {
+        val (topR, bottomR) = createRefs()
         Column(
             modifier = Modifier
                 .fillMaxHeight()
@@ -99,7 +102,7 @@ fun MainSideBar(
                                         top.linkTo(parent.top)
                                     }
                                     .padding(
-                                        start = 20.dp,
+                                        start = 30.dp,
                                         top = 10.dp,
                                         bottom = 10.dp,
                                         end = 10.dp
@@ -112,32 +115,40 @@ fun MainSideBar(
                                 },
                                 style = MaterialTheme.typography.titleMedium,
                             )
-                            if (isMe) {
-                                IconButton(
-                                    onClick = {
-                                        onDeleteClick.invoke(session)
-                                    },
-                                    modifier = Modifier
-                                        .width(30.dp)
-                                        .height(30.dp)
-                                        .constrainAs(cleaR) {
-                                            end.linkTo(parent.end)
-                                            top.linkTo(parent.top)
-                                            bottom.linkTo(parent.bottom)
-                                        }
-                                ) {
-                                    Icon(Icons.Filled.Clear, contentDescription = null)
+                            Column(modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp)
+                                .constrainAs(cleaR) {
+                                    end.linkTo(parent.end)
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                }) {
+                                AnimatedVisibility(visible = isMe) {
+                                    IconButton(
+                                        onClick = {
+                                            onDeleteClick.invoke(session)
+                                        }) {
+                                        Icon(Icons.Filled.Clear, contentDescription = null)
+                                    }
                                 }
+
                             }
+
                         }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
+
+        }
+        Card(modifier = Modifier.constrainAs(bottomR) {
+        }) {
+            Text(text = "Url")
         }
     }
 
 }
+
 
 @Composable
 @Preview
