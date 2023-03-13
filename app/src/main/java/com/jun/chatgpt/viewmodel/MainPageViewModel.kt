@@ -198,7 +198,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
             )
             _gptRepository.fetchMessage(mutableListOf<MessageDTO>().apply {
                 //把之前聊天记录给带上 并且不带上系统提示
-                _messageList.value?.filter { it.role != Role.SYSTEAM.roleName }?.forEach {
+                _messageList.value?.filter { it.role != Role.SYSTEM.roleName }?.forEach {
                     add(it.toDTO())
                 }
                 //把自己写的放到数据库
@@ -212,7 +212,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                     Message(
                         sessionId = sessionId,
                         content = it.toString(),
-                        role = Role.SYSTEAM.roleName
+                        role = Role.SYSTEM.roleName
                     )
                 )
             }
@@ -225,7 +225,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
             insertMessage(
                 Message(
                     content = gtpResponse.error.message,
-                    role = Role.SYSTEAM.roleName,
+                    role = Role.SYSTEM.roleName,
                     sessionId = sessionId,
                 )
             )
@@ -244,7 +244,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     }
 
     fun saveTemplate(name: String, message: List<Message>) {
-        val list = message.filter { it.role != Role.SYSTEAM.roleName }
+        val list = message.filter { it.role != Role.SYSTEM.roleName }
         val listJson = Gson().toJson(list)
         L.d("listJson $listJson")
         viewModelScope.launch {

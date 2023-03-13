@@ -19,6 +19,7 @@ import androidx.compose.ui.window.Popup
 import com.jun.chatgpt.R
 import com.jun.chatgpt.model.Template
 import com.jun.chatgpt.ui.main.api.ApiKeyEditDialog
+import com.jun.chatgpt.ui.main.template.TemplateAddDialog
 import com.jun.chatgpt.ui.main.template.TemplateListDialog
 import com.jun.template.common.GlobalConfig
 import com.jun.template.common.extension.toast

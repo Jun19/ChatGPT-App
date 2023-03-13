@@ -7,9 +7,12 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
@@ -37,6 +40,7 @@ import com.jun.chatgpt.model.Session
 import com.jun.chatgpt.model.enums.Role
 import com.jun.chatgpt.viewmodel.MainPageViewModel
 import com.jun.chatgpt.widget.TextCursorBlinking
+import kotlinx.coroutines.delay
 
 /**
  * 主页页面
@@ -71,10 +75,29 @@ fun MainPage(viewModel: MainPageViewModel) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            stringResource(id = R.string.app_title),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        val scrollState = rememberScrollState(0)
+                        Box(modifier = Modifier.horizontalScroll(scrollState)) {
+                            val title =
+                                currentSession.title.ifEmpty { stringResource(id = R.string.app_title) }
+                            Text(
+                                title,
+                                maxLines = 1,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                delay(16) // 每隔16毫秒滚动一次
+                                if (scrollState.value == scrollState.maxValue) {
+                                    delay(1000)
+                                    scrollState.scrollTo(0)
+                                    delay(1000)
+                                } else {
+                                    scrollState.scrollBy(1f)
+
+                                }
+                            }
+                        }
                     }
                 },
                 navigationIcon = {
@@ -116,7 +139,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                             LeftView(message.content)
                         } else if (message.role == Role.USER.roleName) {
                             RightView(message.content)
-                        } else if (message.role == Role.SYSTEAM.roleName) {
+                        } else if (message.role == Role.SYSTEM.roleName) {
                             TipsView(message.content)
                         }
                         if (position == messageList.size - 1) {

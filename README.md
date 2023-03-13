@@ -1,6 +1,8 @@
 # ChatGPT-App
 
 Android Compose App
+This repository contains a sample project in Kotlin to demonstrate Jetpack Compose, MMKV,
+Coroutines, Koin, Room, Retrofit and Repository pattern
 
 # Preview
 

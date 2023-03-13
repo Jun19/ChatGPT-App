@@ -1,4 +1,4 @@
-package com.jun.chatgpt.ui.main
+package com.jun.chatgpt.ui.main.template
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

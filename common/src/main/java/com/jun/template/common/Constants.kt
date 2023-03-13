@@ -19,6 +19,12 @@ object Constants {
 
     const val NETWORK_TIME_OUT = 30L
 
+    const val SOURCE_URL = "https://github.com/Jun19/ChatGPT-App"
+
+    const val APPLY_URL = "https://platform.openai.com/account/api-keys"
+
+    const val AUTHOR = "Jun"
+
 
     object Config {
         const val TEMP = "temp"

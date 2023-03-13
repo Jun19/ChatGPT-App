@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">ChatGPT</string>
+    <string name="app_title">ChatGPT</string>
+    <string name="error_tips">错误提示:</string>
+    <string name="btn_send">发送</string>
+    <string name="bar_session">会话列表:</string>
+    <string name="bar_new_session">新建会话</string>
+    <string name="bar_session_item">会话</string>
+    <string name="more_templates_create">保存为模板</string>
+    <string name="more_template_list">模板列表</string>
+    <string name="more_clear">清除会话</string>
+
+    <string name="dialog_confirm">确认</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="change_key">更换 API Key</string>
+    <string name="recommend_content">建议您使用自己申请的openai密钥，以避免出现当前密钥不可用的情况</string>
+
+    <string name="dialog_template_empty_tips">名称不能为空</string>
+    <string name="dialog_api_empty_tips">api key 不能为空</string>
+    <string name="dialog_template_add_tips">你必须先发送一些消息在当前会话</string>
+    <string name="dialog_save_success_tips">保存成功</string>
+    <string name="dialog_key_change_tips">修改成功</string>
+    <string name="apply">申请地址</string>
+
+    <string name="address">项目地址</string>
+</resources>
