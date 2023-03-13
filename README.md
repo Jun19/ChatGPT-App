@@ -6,9 +6,9 @@
 
 ## 预览(Preview)
 <p align="center">
-<img src="https://github.com/Jun19/ChatGPT-App/blob/master/images/v1/4bbb937daff26b10539b768f21d0b84.jpg" width="300">
-<img src="https://github.com/Jun19/ChatGPT-App/blob/master/images/v1/2bf8cd243fac8f3ba63e4fe6bd6fbfc.jpg" width="300">
-<img src="https://github.com/Jun19/ChatGPT-App/blob/master/images/v1/945e9d95b06b5bd082901aa0fc8a638.jpg" width="300">
+<img src="https://github.com/Jun19/ChatGPT-App/blob/master/images/v1/4bbb937daff26b10539b768f21d0b84.jpg" width="250">
+<img src="https://github.com/Jun19/ChatGPT-App/blob/master/images/v1/2bf8cd243fac8f3ba63e4fe6bd6fbfc.jpg" width="250">
+<img src="https://github.com/Jun19/ChatGPT-App/blob/master/images/v1/945e9d95b06b5bd082901aa0fc8a638.jpg" width="250">
 </p>
 <p align="center">
 <img src="https://github.com/Jun19/ChatGPT-App/blob/master/images/v1/84fdeef51462864adb0d813f845ab89.jpg" width="300">
