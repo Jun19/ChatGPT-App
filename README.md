@@ -25,6 +25,4 @@
 ### 4.api异常、断网、错误提示(Api exception, network disconnection, error prompt)
 ### 5.快速更换api key(Quick replacement of api key)
 
-## 最后（last）
-### 希望和更多的开发者友好沟通、共同进步。
-### I hope to communicate with more developers and make progress together
+
