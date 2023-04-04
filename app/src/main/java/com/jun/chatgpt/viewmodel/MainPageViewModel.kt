@@ -92,6 +92,16 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         }
     }
 
+    fun deleteMessage(message: Message) {
+        viewModelScope.launch {
+            _gptRepository.deleteMessage(message).onSuccess {
+                _messageList.value = _messageList.value?.toMutableList()?.apply {
+                    this.remove(message)
+                }
+            }
+        }
+    }
+
     //***Session***//
 
 

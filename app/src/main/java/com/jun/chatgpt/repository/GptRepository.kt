@@ -54,6 +54,12 @@ class GptRepository(
         }
     }
 
+    suspend fun deleteMessage(message: Message): Result<Unit> {
+        return handleException {
+            _messageDao.delete(message)
+        }
+    }
+
     suspend fun queryAllMessage(): Result<List<Message>> {
         return handleException {
             _messageDao.queryAll()

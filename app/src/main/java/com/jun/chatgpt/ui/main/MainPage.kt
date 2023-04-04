@@ -196,11 +196,11 @@ fun MainPage(viewModel: MainPageViewModel) {
             visible = isVisible,
             enter = slideInHorizontally(
                 initialOffsetX = { fullWidth -> -fullWidth },
-                animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
             ),
             exit = slideOutHorizontally(
                 targetOffsetX = { fullWidth -> -fullWidth },
-                animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
             )
         ) {
             MainSideBar(sessionList, currentSession, {
