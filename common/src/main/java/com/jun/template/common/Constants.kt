@@ -17,7 +17,7 @@ object Constants {
 
     const val CHAT_MODEL = "gpt-3.5-turbo-0301"
 
-    const val NETWORK_TIME_OUT = 30L
+    const val NETWORK_TIME_OUT = 90L
 
     const val SOURCE_URL = "https://github.com/Jun19/ChatGPT-App"
 

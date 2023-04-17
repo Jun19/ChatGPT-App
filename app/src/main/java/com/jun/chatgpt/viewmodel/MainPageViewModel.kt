@@ -9,7 +9,10 @@ import com.google.gson.reflect.TypeToken
 import com.jun.chatgpt.model.*
 import com.jun.chatgpt.model.enums.Role
 import com.jun.chatgpt.repository.GptRepository
+import com.jun.template.common.exception.Failure
 import com.jun.template.common.utils.L
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
@@ -37,6 +40,9 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     private val _templateList = MutableLiveData<List<Template>>()
     var templateList: LiveData<List<Template>> = _templateList
 
+    //是否列表会自动滑到底部
+    var isBottom = true
+
     init {
         //获取上一次的session会话
         queryLeastSession()
@@ -60,6 +66,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
     private fun insertMessage(message: Message) {
         viewModelScope.launch {
+            isBottom = true
             //同时更新会话记录
             if (message.role == Role.USER.roleName) {
                 updateSessionTitle(message.sessionId, message.content)
@@ -111,6 +118,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     }
 
     fun switchSession(session: Session?) {
+        isBottom = true
         setSessionDetail(session)
     }
 
@@ -195,36 +203,57 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     }
 
     //***Template***//
+    var task: Job? = null
+    var lastSessionId = -1
 
     //发送消息
     fun sendMessage(content: String) {
-//        messageTask?.cancel()
-        viewModelScope.launch {
+        //同一会话才取消
+        if (lastSessionId == getCurrentSessionId()) {
+            L.d("上一个任务还没完成的话 被我取消咯")
+            task?.cancel(null)
+        }
+        task = viewModelScope.launch {
             val sessionId = getCurrentSessionId()
             val message = Message(
                 sessionId = sessionId,
                 content = content,
                 role = Role.USER.roleName
             )
+            lastSessionId = sessionId
+            //如果上一条是状态是等待响应的 则移除
+            if (!messageList.value.isNullOrEmpty()) {
+                val lastMessage = messageList.value!![messageList.value!!.size - 1]
+                if (lastMessage.role == Role.ASSISTANT.roleName && lastMessage.content.isEmpty()) {
+                    updateMessageList(sessionId) {
+                        it.remove(lastMessage)
+                    }
+                }
+            }
+            insertMessage(message = message)
             _gptRepository.fetchMessage(mutableListOf<MessageDTO>().apply {
                 //把之前聊天记录给带上 并且不带上系统提示
                 _messageList.value?.filter { it.role != Role.SYSTEM.roleName }?.forEach {
                     add(it.toDTO())
                 }
                 //把自己写的放到数据库
-                insertMessage(message = message)
                 add(message.toDTO())
             }).onSuccess { it ->
+                //如果多次发送的话 把相同的取消 不同的方法出来
                 repDataProcess(it, sessionId)
             }.onFailure {
-                //错误提示
-                insertMessage(
-                    Message(
-                        sessionId = sessionId,
-                        content = it.toString(),
-                        role = Role.SYSTEM.roleName
-                    )
-                )
+                if ((it as Failure.OtherError).throwable !is CancellationException) {
+                    //错误提示
+                    updateMessageList(message.sessionId) { list ->
+                        list.add(
+                            Message(
+                                sessionId = sessionId,
+                                content = it.toString(),
+                                role = Role.SYSTEM.roleName
+                            )
+                        )
+                    }
+                }
             }
         }
     }

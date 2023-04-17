@@ -5,17 +5,15 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,8 +34,10 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.jun.chatgpt.R
+import com.jun.chatgpt.model.Message
 import com.jun.chatgpt.model.Session
 import com.jun.chatgpt.model.enums.Role
+import com.jun.chatgpt.ui.theme.longClick
 import com.jun.chatgpt.viewmodel.MainPageViewModel
 import com.jun.chatgpt.widget.TextCursorBlinking
 import kotlinx.coroutines.delay
@@ -136,21 +136,28 @@ fun MainPage(viewModel: MainPageViewModel) {
                         Spacer(modifier = Modifier.height(10.dp))
                         val message = messageList[position]
                         if (message.role == Role.ASSISTANT.roleName) {
-                            LeftView(message.content)
+                            LeftView(message) {
+                                viewModel.deleteMessage(message)
+                            }
                         } else if (message.role == Role.USER.roleName) {
-                            RightView(message.content)
+                            RightView(message) {
+                                viewModel.deleteMessage(message)
+                            }
                         } else if (message.role == Role.SYSTEM.roleName) {
-                            TipsView(message.content)
+                            TipsView(message) {
+                                viewModel.deleteMessage(message)
+                            }
                         }
                         if (position == messageList.size - 1) {
                             Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
                 }
-                if (messageList.isNotEmpty()) {
+                if (messageList.isNotEmpty() && viewModel.isBottom) {
                     LaunchedEffect(key1 = messageList) {
                         // 当 list 更新时，自动滚动到底部
                         scrollState.animateScrollToItem(messageList.size - 1)
+                        viewModel.isBottom = false
                     }
                 }
             }
@@ -236,24 +243,45 @@ fun MainPage(viewModel: MainPageViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LeftView(content: String) {
-    Row(modifier = Modifier.padding(start = 10.dp, end = 60.dp)) {
+fun LeftView(message: Message, OnDelete: () -> Unit) {
+    val content = message.content
+    var isDeleteVisible by remember { mutableStateOf(false) }
+    ConstraintLayout(
+        modifier = Modifier
+            .padding(start = 10.dp, end = 108.dp)
+            .fillMaxWidth()
+    ) {
+        val (head, text, delete) = createRefs()
+
         Image(
             painter = painterResource(id = R.drawable.ic_gpt),
             contentDescription = "",
             modifier = Modifier
+                .constrainAs(head) {
+                    start.linkTo(parent.start)
+                    top.linkTo(parent.top)
+                }
                 .size(45.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop
         )
-        SelectionContainer() {
-            Card(modifier = Modifier.padding(start = 7.dp)) {
+        SelectionContainer(modifier = Modifier
+            .padding(start = 7.dp)
+            .constrainAs(text) {
+                start.linkTo(head.end)
+                top.linkTo(head.top)
+            }
+        ) {
+            Card(modifier = Modifier
+                .clickable {
+                    isDeleteVisible = !isDeleteVisible
+                }
+            ) {
                 if (content.isEmpty()) {
                     TextCursorBlinking(
                         text = content,
                         modifier = Modifier
                             .padding(15.dp)
-                            .fillMaxWidth()
                     )
                 } else {
                     Text(
@@ -262,27 +290,62 @@ fun LeftView(content: String) {
                 }
             }
         }
+        IconButton(
+            modifier = Modifier.constrainAs(delete) {
+                start.linkTo(text.end)
+                top.linkTo(text.top)
+            },
+            onClick = {
+                OnDelete.invoke()
+            }) {
+            if (isDeleteVisible) {
+                Icon(Icons.Filled.Clear, contentDescription = null)
+            }
+        }
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RightView(content: String) {
+fun RightView(message: Message, OnDelete: () -> Unit) {
+    val content = message.content
+    var isDeleteVisible by remember { mutableStateOf(false) }
+
     ConstraintLayout(
         modifier = Modifier
             .padding(end = 10.dp)
             .fillMaxWidth()
+            .padding(start = 108.dp)
     ) {
-        val (head, text) = createRefs()
-        SelectionContainer(modifier = Modifier.constrainAs(text) {
-            top.linkTo(head.top)
-            end.linkTo(head.start)
-        }) {
-            Card(modifier = Modifier.padding(start = 108.dp, end = 7.dp)) {
-                Text(
-                    text = content, color = Color.Black, modifier = Modifier.padding(15.dp)
-                )
+
+        val (head, text, delete) = createRefs()
+        SelectionContainer(
+            modifier = Modifier
+                .constrainAs(text) {
+                    top.linkTo(head.top)
+                    end.linkTo(head.start)
+                }
+        ) {
+            Box(modifier = Modifier
+                .clickable {
+                    isDeleteVisible = !isDeleteVisible
+                }) {
+                Card(modifier = Modifier.padding(end = 7.dp)) {
+                    Text(
+                        text = content, color = Color.Black, modifier = Modifier.padding(15.dp)
+                    )
+                }
+            }
+        }
+        IconButton(modifier = Modifier.constrainAs(delete) {
+            top.linkTo(text.top)
+            end.linkTo(text.start)
+        },
+            onClick = {
+                OnDelete.invoke()
+            }) {
+            if (isDeleteVisible) {
+                Icon(Icons.Filled.Clear, contentDescription = null)
             }
         }
         Image(
@@ -298,19 +361,12 @@ fun RightView(content: String) {
             contentScale = ContentScale.Crop
         )
     }
-    Row(
-        modifier = Modifier
-            .padding(end = 10.dp, start = 60.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.End
-    ) {
 
-
-    }
 }
 
 @Composable
-fun TipsView(content: String) {
+fun TipsView(message: Message, OnDelete: () -> Unit) {
+    val content = message.content
     val tips = stringResource(id = R.string.error_tips)
     Box(
         modifier = Modifier.padding(start = 20.dp, end = 20.dp), contentAlignment = Alignment.Center
@@ -321,7 +377,10 @@ fun TipsView(content: String) {
                 modifier = Modifier
                     .padding(5.dp)
                     .fillMaxWidth()
-                    .wrapContentWidth(Alignment.CenterHorizontally),
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .longClick {
+                        OnDelete.invoke()
+                    },
                 color = Color.Red,
                 textAlign = TextAlign.Center,
                 fontSize = 12.sp
@@ -330,8 +389,9 @@ fun TipsView(content: String) {
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    RightView("55AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5")
+//    RightView("55AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5")
 }
