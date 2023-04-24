@@ -43,6 +43,9 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     //是否列表会自动滑到底部
     var isBottom = true
 
+    //准备删除的message
+    var alreadyDeleteMessage: Message? = null
+
     init {
         //获取上一次的session会话
         queryLeastSession()
@@ -68,13 +71,14 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         viewModelScope.launch {
             isBottom = true
             //同时更新会话记录
-            if (message.role == Role.USER.roleName) {
+            if (message.content.isNotEmpty()) {
                 updateSessionTitle(message.sessionId, message.content)
             }
             //更新会话的最后时间
             updateSessionTime(message.sessionId)
             _gptRepository.insertMessage(message).onSuccess {
                 val sessionId = message.sessionId
+                //为用户
                 if (message.role == Role.USER.roleName) {
                     updateMessageList(sessionId) {
                         it.add(message)
@@ -85,11 +89,18 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                     }
                 } else {
                     updateMessageList(sessionId) {
-                        if (it.size > 1) {
-                            //删除最后一个
-                            it.removeAt(it.size - 1)
+                        //把之前的空响应移除掉
+                        if (it.isNotEmpty()) {
+                            val iterator = it.iterator()
+                            while (iterator.hasNext()) {
+                                val msg = iterator.next()
+                                if (msg.role == Role.ASSISTANT.roleName && msg.content == "") {
+                                    iterator.remove()
+                                }
+                            }
                         }
                     }
+                    //加入最新的插入
                     updateMessageList(sessionId) {
                         it.add(message)
                     }

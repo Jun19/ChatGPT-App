@@ -37,6 +37,7 @@ import com.jun.chatgpt.R
 import com.jun.chatgpt.model.Message
 import com.jun.chatgpt.model.Session
 import com.jun.chatgpt.model.enums.Role
+import com.jun.chatgpt.ui.main.common.CommonTipsDialog
 import com.jun.chatgpt.ui.theme.longClick
 import com.jun.chatgpt.viewmodel.MainPageViewModel
 import com.jun.chatgpt.widget.TextCursorBlinking
@@ -60,6 +61,8 @@ fun MainPage(viewModel: MainPageViewModel) {
             lastSessionTime = System.currentTimeMillis()
         )
     )
+    var isShowDelete by remember { mutableStateOf(false) }
+
     var isOpenPop by remember { mutableStateOf(false) }
 
     var text by remember { mutableStateOf("") }
@@ -137,11 +140,13 @@ fun MainPage(viewModel: MainPageViewModel) {
                         val message = messageList[position]
                         if (message.role == Role.ASSISTANT.roleName) {
                             LeftView(message) {
-                                viewModel.deleteMessage(message)
+                                viewModel.alreadyDeleteMessage = message
+                                isShowDelete = true
                             }
                         } else if (message.role == Role.USER.roleName) {
                             RightView(message) {
-                                viewModel.deleteMessage(message)
+                                viewModel.alreadyDeleteMessage = message
+                                isShowDelete = true
                             }
                         } else if (message.role == Role.SYSTEM.roleName) {
                             TipsView(message) {
@@ -237,6 +242,16 @@ fun MainPage(viewModel: MainPageViewModel) {
                 })
         }
 
+        //deleteView
+        if (isShowDelete) {
+            CommonTipsDialog(
+                text = stringResource(id = R.string.delete_tips),
+                onCancel = { isShowDelete = false },
+                onFirm = {
+                    viewModel.alreadyDeleteMessage?.let { it1 -> viewModel.deleteMessage(it1) }
+                    isShowDelete = false
+                })
+        }
     }
 }
 
