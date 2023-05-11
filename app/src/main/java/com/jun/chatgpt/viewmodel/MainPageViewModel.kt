@@ -6,7 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.jun.chatgpt.model.*
+import com.jun.chatgpt.model.GptResponse
+import com.jun.chatgpt.model.Message
+import com.jun.chatgpt.model.MessageDTO
+import com.jun.chatgpt.model.Session
+import com.jun.chatgpt.model.Template
 import com.jun.chatgpt.model.enums.Role
 import com.jun.chatgpt.repository.GptRepository
 import com.jun.template.common.exception.Failure
@@ -106,7 +110,10 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                     }
                 }
                 L.d("insert message $message ${getCurrentSessionId()}")
-            }.onFailure { }
+            }.onFailure {
+
+
+            }
         }
     }
 
@@ -118,6 +125,95 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                 }
             }
         }
+    }
+
+    fun retryMessage(position: Int) {
+        //todo
+    }
+
+    //发送消息
+    fun sendMessage(content: String) {
+        //同一会话才取消
+        if (lastSessionId == getCurrentSessionId()) {
+            L.d("上一个任务还没完成的话 被我取消咯")
+            task?.cancel(null)
+        }
+        task = viewModelScope.launch {
+            val sessionId = getCurrentSessionId()
+            val message = Message(
+                sessionId = sessionId,
+                content = content,
+                role = Role.USER.roleName
+            )
+            lastSessionId = sessionId
+
+            removeLastEmptyMessage(sessionId)
+
+            insertMessage(message = message)
+
+            _gptRepository.fetchMessage(mutableListOf<MessageDTO>().apply {
+                //把之前聊天记录给带上 并且不带上系统提示
+                _messageList.value?.filter { it.role != Role.SYSTEM.roleName }?.forEach {
+                    add(it.toDTO())
+                }
+                //把自己写的放到数据库
+                add(message.toDTO())
+            }).onSuccess {
+                //如果多次发送的话 把相同的取消 不同的方法出来
+                repDataProcess(it, sessionId)
+            }.onFailure {
+                if ((it as Failure.OtherError).throwable !is CancellationException) {
+                    removeLastEmptyMessage(sessionId)
+                    //错误提示
+                    updateMessageList(message.sessionId) { list ->
+                        //删除那条空的
+                        list.add(
+                            Message(
+                                sessionId = sessionId,
+                                content = it.toString(),
+                                role = Role.SYSTEM.roleName
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun removeLastEmptyMessage(sessionId: Int) {
+        //如果上一条是状态是等待响应的 则移除
+        if (!messageList.value.isNullOrEmpty()) {
+            val lastMessage = messageList.value!![messageList.value!!.size - 1]
+            if (lastMessage.role == Role.ASSISTANT.roleName && lastMessage.content.isEmpty()) {
+                updateMessageList(sessionId) {
+                    it.remove(lastMessage)
+                }
+            }
+        }
+    }
+
+    private fun repDataProcess(gtpResponse: GptResponse, sessionId: Int) {
+        //错误
+        if (gtpResponse.error != null) {
+            insertMessage(
+                Message(
+                    content = gtpResponse.error.message,
+                    role = Role.SYSTEM.roleName,
+                    sessionId = sessionId,
+                )
+            )
+        } else {
+            gtpResponse.choices.forEach {
+                //拿到数据后 插入到数据库
+                insertMessage(
+                    Message(
+                        content = filterDrayMessage(it.message.content), role = it.message.role,
+                        sessionId = sessionId,
+                    )
+                )
+            }
+        }
+
     }
 
     //***Session***//
@@ -216,82 +312,6 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     //***Template***//
     var task: Job? = null
     var lastSessionId = -1
-
-    //发送消息
-    fun sendMessage(content: String) {
-        //同一会话才取消
-        if (lastSessionId == getCurrentSessionId()) {
-            L.d("上一个任务还没完成的话 被我取消咯")
-            task?.cancel(null)
-        }
-        task = viewModelScope.launch {
-            val sessionId = getCurrentSessionId()
-            val message = Message(
-                sessionId = sessionId,
-                content = content,
-                role = Role.USER.roleName
-            )
-            lastSessionId = sessionId
-            //如果上一条是状态是等待响应的 则移除
-            if (!messageList.value.isNullOrEmpty()) {
-                val lastMessage = messageList.value!![messageList.value!!.size - 1]
-                if (lastMessage.role == Role.ASSISTANT.roleName && lastMessage.content.isEmpty()) {
-                    updateMessageList(sessionId) {
-                        it.remove(lastMessage)
-                    }
-                }
-            }
-            insertMessage(message = message)
-            _gptRepository.fetchMessage(mutableListOf<MessageDTO>().apply {
-                //把之前聊天记录给带上 并且不带上系统提示
-                _messageList.value?.filter { it.role != Role.SYSTEM.roleName }?.forEach {
-                    add(it.toDTO())
-                }
-                //把自己写的放到数据库
-                add(message.toDTO())
-            }).onSuccess { it ->
-                //如果多次发送的话 把相同的取消 不同的方法出来
-                repDataProcess(it, sessionId)
-            }.onFailure {
-                if ((it as Failure.OtherError).throwable !is CancellationException) {
-                    //错误提示
-                    updateMessageList(message.sessionId) { list ->
-                        list.add(
-                            Message(
-                                sessionId = sessionId,
-                                content = it.toString(),
-                                role = Role.SYSTEM.roleName
-                            )
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun repDataProcess(gtpResponse: GptResponse, sessionId: Int) {
-        //错误
-        if (gtpResponse.error != null) {
-            insertMessage(
-                Message(
-                    content = gtpResponse.error.message,
-                    role = Role.SYSTEM.roleName,
-                    sessionId = sessionId,
-                )
-            )
-        } else {
-            gtpResponse.choices.forEach {
-                //拿到数据后 插入到数据库
-                insertMessage(
-                    Message(
-                        content = filterDrayMessage(it.message.content), role = it.message.role,
-                        sessionId = sessionId,
-                    )
-                )
-            }
-        }
-
-    }
 
     fun saveTemplate(name: String, message: List<Message>) {
         val list = message.filter { it.role != Role.SYSTEM.roleName }

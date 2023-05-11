@@ -5,19 +5,47 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallTopAppBar
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -57,8 +85,7 @@ fun MainPage(viewModel: MainPageViewModel) {
     val templateList by viewModel.templateList.observeAsState(emptyList())
     val currentSession by viewModel.currentSession.observeAsState(
         Session(
-            title = "",
-            lastSessionTime = System.currentTimeMillis()
+            title = "", lastSessionTime = System.currentTimeMillis()
         )
     )
     var isShowDelete by remember { mutableStateOf(false) }
@@ -72,55 +99,47 @@ fun MainPage(viewModel: MainPageViewModel) {
             val (topR, listR, bottomR) = createRefs()
 
             //顶部栏
-            SmallTopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        val scrollState = rememberScrollState(0)
-                        Box(modifier = Modifier.horizontalScroll(scrollState)) {
-                            val title =
-                                currentSession.title.ifEmpty { stringResource(id = R.string.app_title) }
-                            Text(
-                                title,
-                                maxLines = 1,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                        LaunchedEffect(Unit) {
-                            while (true) {
-                                delay(16) // 每隔16毫秒滚动一次
-                                if (scrollState.value == scrollState.maxValue) {
-                                    delay(1000)
-                                    scrollState.scrollTo(0)
-                                    delay(1000)
-                                } else {
-                                    scrollState.scrollBy(1f)
+            SmallTopAppBar(title = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                ) {
+                    val scrollState = rememberScrollState(0)
+                    Box(modifier = Modifier.horizontalScroll(scrollState)) {
+                        val title =
+                            currentSession.title.ifEmpty { stringResource(id = R.string.app_title) }
+                        Text(
+                            title, maxLines = 1, style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    LaunchedEffect(Unit) {
+                        while (true) {
+                            delay(16) // 每隔16毫秒滚动一次
+                            if (scrollState.value == scrollState.maxValue) {
+                                delay(1000)
+                                scrollState.scrollTo(0)
+                                delay(1000)
+                            } else {
+                                scrollState.scrollBy(1f)
 
-                                }
                             }
                         }
                     }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { isVisible = !isVisible }) {
-                        Icon(painter = painterResource(id = R.drawable.ic_more), "More")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        isOpenPop = !isOpenPop
-                    }) {
-                        Icon(Icons.Filled.PlayArrow, "Info")
-                    }
-                },
-                modifier = Modifier.constrainAs(topR) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
                 }
-            )
+            }, navigationIcon = {
+                IconButton(onClick = { isVisible = !isVisible }) {
+                    Icon(painter = painterResource(id = R.drawable.ic_more), "More")
+                }
+            }, actions = {
+                IconButton(onClick = {
+                    isOpenPop = !isOpenPop
+                }) {
+                    Icon(Icons.Filled.PlayArrow, "Info")
+                }
+            }, modifier = Modifier.constrainAs(topR) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            })
 
             //列表 list
             Box(modifier = Modifier
@@ -144,10 +163,12 @@ fun MainPage(viewModel: MainPageViewModel) {
                                 isShowDelete = true
                             }
                         } else if (message.role == Role.USER.roleName) {
-                            RightView(message) {
+                            RightView(message, {
                                 viewModel.alreadyDeleteMessage = message
                                 isShowDelete = true
-                            }
+                            }, {
+                                viewModel.retryMessage(position)
+                            })
                         } else if (message.role == Role.SYSTEM.roleName) {
                             TipsView(message) {
                                 viewModel.deleteMessage(message)
@@ -158,6 +179,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                         }
                     }
                 }
+                //列表自动滑动底部
                 if (messageList.isNotEmpty() && viewModel.isBottom) {
                     LaunchedEffect(key1 = messageList) {
                         // 当 list 更新时，自动滚动到底部
@@ -205,12 +227,10 @@ fun MainPage(viewModel: MainPageViewModel) {
 
         // 侧边栏内容
         AnimatedVisibility(
-            visible = isVisible,
-            enter = slideInHorizontally(
+            visible = isVisible, enter = slideInHorizontally(
                 initialOffsetX = { fullWidth -> -fullWidth },
                 animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
-            ),
-            exit = slideOutHorizontally(
+            ), exit = slideOutHorizontally(
                 targetOffsetX = { fullWidth -> -fullWidth },
                 animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
             )
@@ -228,8 +248,7 @@ fun MainPage(viewModel: MainPageViewModel) {
 
         //popwindow
         if (isOpenPop) {
-            MainPop(
-                templateList,
+            MainPop(templateList,
                 messageList.size,
                 onCloseCallback = { isOpenPop = false },
                 onSaveTemplate = {
@@ -237,15 +256,15 @@ fun MainPage(viewModel: MainPageViewModel) {
                 },
                 onTemplateDelete = {
                     viewModel.deleteTemplate(it.id)
-                }, onTemplateLoad = {
+                },
+                onTemplateLoad = {
                     viewModel.loadTemplate(it)
                 })
         }
 
         //deleteView
         if (isShowDelete) {
-            CommonTipsDialog(
-                text = stringResource(id = R.string.delete_tips),
+            CommonTipsDialog(text = stringResource(id = R.string.delete_tips),
                 onCancel = { isShowDelete = false },
                 onFirm = {
                     viewModel.alreadyDeleteMessage?.let { it1 -> viewModel.deleteMessage(it1) }
@@ -268,8 +287,7 @@ fun LeftView(message: Message, OnDelete: () -> Unit) {
     ) {
         val (head, text, delete) = createRefs()
 
-        Image(
-            painter = painterResource(id = R.drawable.ic_gpt),
+        Image(painter = painterResource(id = R.drawable.ic_gpt),
             contentDescription = "",
             modifier = Modifier
                 .constrainAs(head) {
@@ -278,25 +296,19 @@ fun LeftView(message: Message, OnDelete: () -> Unit) {
                 }
                 .size(45.dp)
                 .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
+            contentScale = ContentScale.Crop)
         SelectionContainer(modifier = Modifier
             .padding(start = 7.dp)
             .constrainAs(text) {
                 start.linkTo(head.end)
                 top.linkTo(head.top)
-            }
-        ) {
-            Card(modifier = Modifier
-                .clickable {
-                    isDeleteVisible = !isDeleteVisible
-                }
-            ) {
+            }) {
+            Card(modifier = Modifier.clickable {
+                isDeleteVisible = !isDeleteVisible
+            }) {
                 if (content.isEmpty()) {
                     TextCursorBlinking(
-                        text = content,
-                        modifier = Modifier
-                            .padding(15.dp)
+                        text = content, modifier = Modifier.padding(15.dp)
                     )
                 } else {
                     Text(
@@ -305,14 +317,12 @@ fun LeftView(message: Message, OnDelete: () -> Unit) {
                 }
             }
         }
-        IconButton(
-            modifier = Modifier.constrainAs(delete) {
-                start.linkTo(text.end)
-                top.linkTo(text.top)
-            },
-            onClick = {
-                OnDelete.invoke()
-            }) {
+        IconButton(modifier = Modifier.constrainAs(delete) {
+            start.linkTo(text.end)
+            top.linkTo(text.top)
+        }, onClick = {
+            OnDelete.invoke()
+        }) {
             if (isDeleteVisible) {
                 Icon(Icons.Filled.Clear, contentDescription = null)
             }
@@ -322,9 +332,9 @@ fun LeftView(message: Message, OnDelete: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RightView(message: Message, OnDelete: () -> Unit) {
+fun RightView(message: Message, onDelete: () -> Unit, onRetry: () -> Unit) {
     val content = message.content
-    var isDeleteVisible by remember { mutableStateOf(false) }
+    var isOperateVisible by remember { mutableStateOf(false) }
 
     ConstraintLayout(
         modifier = Modifier
@@ -333,18 +343,14 @@ fun RightView(message: Message, OnDelete: () -> Unit) {
             .padding(start = 108.dp)
     ) {
 
-        val (head, text, delete) = createRefs()
-        SelectionContainer(
-            modifier = Modifier
-                .constrainAs(text) {
-                    top.linkTo(head.top)
-                    end.linkTo(head.start)
-                }
-        ) {
-            Box(modifier = Modifier
-                .clickable {
-                    isDeleteVisible = !isDeleteVisible
-                }) {
+        val (head, text, delete, retry) = createRefs()
+        SelectionContainer(modifier = Modifier.constrainAs(text) {
+            top.linkTo(head.top)
+            end.linkTo(head.start)
+        }) {
+            Box(modifier = Modifier.clickable {
+                isOperateVisible = !isOperateVisible
+            }) {
                 Card(modifier = Modifier.padding(end = 7.dp)) {
                     Text(
                         text = content, color = Color.Black, modifier = Modifier.padding(15.dp)
@@ -352,17 +358,30 @@ fun RightView(message: Message, OnDelete: () -> Unit) {
                 }
             }
         }
-        IconButton(modifier = Modifier.constrainAs(delete) {
-            top.linkTo(text.top)
-            end.linkTo(text.start)
-        },
-            onClick = {
-                OnDelete.invoke()
+        if (isOperateVisible) {
+
+            IconButton(modifier = Modifier
+                .constrainAs(delete) {
+                    top.linkTo(text.top)
+                    end.linkTo(text.start)
+                }
+                .width(25.dp), onClick = {
+                onDelete.invoke()
             }) {
-            if (isDeleteVisible) {
                 Icon(Icons.Filled.Clear, contentDescription = null)
             }
+            IconButton(modifier = Modifier
+                .constrainAs(retry) {
+                    top.linkTo(delete.top)
+                    end.linkTo(delete.start)
+                }
+                .width(25.dp), onClick = {
+                onRetry.invoke()
+            }) {
+                Icon(Icons.Filled.Refresh, contentDescription = null)
+            }
         }
+
         Image(
             painter = painterResource(id = R.drawable.ic_me),
             contentDescription = "",
@@ -380,7 +399,7 @@ fun RightView(message: Message, OnDelete: () -> Unit) {
 }
 
 @Composable
-fun TipsView(message: Message, OnDelete: () -> Unit) {
+fun TipsView(message: Message, onDelete: () -> Unit) {
     val content = message.content
     val tips = stringResource(id = R.string.error_tips)
     Box(
@@ -394,7 +413,7 @@ fun TipsView(message: Message, OnDelete: () -> Unit) {
                     .fillMaxWidth()
                     .wrapContentWidth(Alignment.CenterHorizontally)
                     .longClick {
-                        OnDelete.invoke()
+                        onDelete.invoke()
                     },
                 color = Color.Red,
                 textAlign = TextAlign.Center,

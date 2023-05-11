@@ -22,6 +22,7 @@
     <string name="dialog_key_change_tips">Changed successfully</string>
     <string name="apply">Apply Address</string>
     <string name="delete_tips">Are you sure to delete it</string>
+    <string name="retry">retry</string>
 
     <string name="address">PROJECT ADDRESS</string>
 </resources>
