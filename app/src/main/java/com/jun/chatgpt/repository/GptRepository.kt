@@ -1,6 +1,11 @@
 package com.jun.chatgpt.repository
 
-import com.jun.chatgpt.model.*
+import com.jun.chatgpt.model.GptRequest
+import com.jun.chatgpt.model.GptResponse
+import com.jun.chatgpt.model.Message
+import com.jun.chatgpt.model.MessageDTO
+import com.jun.chatgpt.model.Session
+import com.jun.chatgpt.model.Template
 import com.jun.chatgpt.repository.local.MessageDao
 import com.jun.chatgpt.repository.local.SessionDao
 import com.jun.chatgpt.repository.local.TemplateDao
@@ -55,6 +60,12 @@ class GptRepository(
     }
 
     suspend fun deleteMessage(message: Message): Result<Unit> {
+        return handleException {
+            _messageDao.delete(message)
+        }
+    }
+
+    suspend fun deleteMessage(message: List<Message>): Result<Unit> {
         return handleException {
             _messageDao.delete(message)
         }

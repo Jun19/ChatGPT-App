@@ -50,6 +50,9 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     //准备删除的message
     var alreadyDeleteMessage: Message? = null
 
+    //重试的位置
+    var retryPosition: Int = -1
+
     init {
         //获取上一次的session会话
         queryLeastSession()
@@ -127,8 +130,29 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         }
     }
 
+    //删除多个信息
+    private fun deleteMultiMessage(messageList: List<Message>) {
+        viewModelScope.launch {
+            _gptRepository.deleteMessage(messageList).onSuccess {
+                _messageList.value = _messageList.value?.toMutableList()?.apply {
+                    val iterator = this.iterator()
+                    while (iterator.hasNext()) {
+                        val checkMessage = iterator.next()
+                        if (messageList.contains(checkMessage)) {
+                            iterator.remove()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun retryMessage(position: Int) {
-        //todo
+        _messageList.value?.let {
+            val retryMessage = it[position]
+            deleteMultiMessage(it.subList(position, it.size))
+            sendMessage(retryMessage.content)
+        }
     }
 
     //发送消息
@@ -141,9 +165,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         task = viewModelScope.launch {
             val sessionId = getCurrentSessionId()
             val message = Message(
-                sessionId = sessionId,
-                content = content,
-                role = Role.USER.roleName
+                sessionId = sessionId, content = content, role = Role.USER.roleName
             )
             lastSessionId = sessionId
 
@@ -304,8 +326,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         viewModelScope.launch {
             _gptRepository.clear(_currentSession.value!!).onSuccess {
                 queryLeastSession()
-            }.onFailure {
-            }
+            }.onFailure {}
         }
     }
 
@@ -349,8 +370,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
     fun loadTemplate(template: Template) {
         val list = Gson().fromJson<List<Message>>(
-            template.tempContent,
-            object : TypeToken<List<Message>>() {}.type
+            template.tempContent, object : TypeToken<List<Message>>() {}.type
         )
         viewModelScope.launch {
             val newSession = Session(0, list[0].content, System.currentTimeMillis())

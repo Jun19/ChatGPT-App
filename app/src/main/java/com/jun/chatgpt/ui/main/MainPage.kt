@@ -88,7 +88,8 @@ fun MainPage(viewModel: MainPageViewModel) {
             title = "", lastSessionTime = System.currentTimeMillis()
         )
     )
-    var isShowDelete by remember { mutableStateOf(false) }
+    var isShowDeleteDialog by remember { mutableStateOf(false) }
+    var isShowRetryDialog by remember { mutableStateOf(false) }
 
     var isOpenPop by remember { mutableStateOf(false) }
 
@@ -160,14 +161,15 @@ fun MainPage(viewModel: MainPageViewModel) {
                         if (message.role == Role.ASSISTANT.roleName) {
                             LeftView(message) {
                                 viewModel.alreadyDeleteMessage = message
-                                isShowDelete = true
+                                isShowDeleteDialog = true
                             }
                         } else if (message.role == Role.USER.roleName) {
                             RightView(message, {
                                 viewModel.alreadyDeleteMessage = message
-                                isShowDelete = true
+                                isShowDeleteDialog = true
                             }, {
-                                viewModel.retryMessage(position)
+                                viewModel.retryPosition = position
+                                isShowRetryDialog = true
                             })
                         } else if (message.role == Role.SYSTEM.roleName) {
                             TipsView(message) {
@@ -263,12 +265,24 @@ fun MainPage(viewModel: MainPageViewModel) {
         }
 
         //deleteView
-        if (isShowDelete) {
+        if (isShowDeleteDialog) {
             CommonTipsDialog(text = stringResource(id = R.string.delete_tips),
-                onCancel = { isShowDelete = false },
+                onCancel = { isShowDeleteDialog = false },
                 onFirm = {
                     viewModel.alreadyDeleteMessage?.let { it1 -> viewModel.deleteMessage(it1) }
-                    isShowDelete = false
+                    isShowDeleteDialog = false
+                })
+        }
+
+        //retryDialog
+        if (isShowRetryDialog) {
+            CommonTipsDialog(text = stringResource(id = R.string.retry),
+                onCancel = { isShowRetryDialog = false },
+                onFirm = {
+                    if (viewModel.retryPosition != -1) {
+                        viewModel.retryMessage(viewModel.retryPosition)
+                    }
+                    isShowRetryDialog = false
                 })
         }
     }
@@ -376,6 +390,7 @@ fun RightView(message: Message, onDelete: () -> Unit, onRetry: () -> Unit) {
                     end.linkTo(delete.start)
                 }
                 .width(25.dp), onClick = {
+                isOperateVisible = false
                 onRetry.invoke()
             }) {
                 Icon(Icons.Filled.Refresh, contentDescription = null)

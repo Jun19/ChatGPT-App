@@ -25,4 +25,7 @@ interface BaseDao<T> {
     @Delete
     fun delete(entity: T)
 
+    @Delete
+    fun delete(list: List<T>)
+
 }

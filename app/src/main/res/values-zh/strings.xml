@@ -22,6 +22,7 @@
     <string name="dialog_key_change_tips">修改成功</string>
     <string name="apply">申请地址</string>
     <string name="delete_tips">你确定删除吗</string>
+    <string name="retry_tips">你确定重发吗</string>
     <string name="retry">重试</string>
 
     <string name="address">项目地址</string>
