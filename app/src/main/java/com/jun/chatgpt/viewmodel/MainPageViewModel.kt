@@ -12,6 +12,7 @@ import com.jun.chatgpt.model.MessageDTO
 import com.jun.chatgpt.model.Session
 import com.jun.chatgpt.model.Template
 import com.jun.chatgpt.model.enums.Role
+import com.jun.chatgpt.model.state.VolumeState
 import com.jun.chatgpt.repository.GptRepository
 import com.jun.template.common.exception.Failure
 import com.jun.template.common.utils.L
@@ -42,7 +43,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
     //模板列表
     private val _templateList = MutableLiveData<List<Template>>()
-    var templateList: LiveData<List<Template>> = _templateList
+    val templateList: LiveData<List<Template>> = _templateList
 
     //是否列表会自动滑到底部
     var isBottom = true
@@ -52,6 +53,9 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
     //重试的位置
     var retryPosition: Int = -1
+
+    private val _volumeState = MutableLiveData<VolumeState>()
+    val volumeState: LiveData<VolumeState> = _volumeState
 
     init {
         //获取上一次的session会话
@@ -418,5 +422,9 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         return newMessage
     }
 
+    fun setVolumeState(touchDown: Boolean = false, touchUp: Boolean = false) {
+        _volumeState.value = VolumeState()
+        _volumeState.value = VolumeState(touchDown, touchUp)
+    }
 
 }

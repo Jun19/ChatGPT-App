@@ -8,6 +8,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -61,14 +62,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.blankj.utilcode.util.ScreenUtils
 import com.jun.chatgpt.R
 import com.jun.chatgpt.model.Message
 import com.jun.chatgpt.model.Session
 import com.jun.chatgpt.model.enums.Role
+import com.jun.chatgpt.model.state.VolumeState
 import com.jun.chatgpt.ui.main.common.CommonTipsDialog
 import com.jun.chatgpt.ui.theme.longClick
 import com.jun.chatgpt.viewmodel.MainPageViewModel
 import com.jun.chatgpt.widget.TextCursorBlinking
+import com.jun.template.common.utils.L
 import kotlinx.coroutines.delay
 
 /**
@@ -83,6 +87,7 @@ fun MainPage(viewModel: MainPageViewModel) {
     val messageList by viewModel.messageList.observeAsState(emptyList())
     val sessionList by viewModel.sessionList.observeAsState(emptyList())
     val templateList by viewModel.templateList.observeAsState(emptyList())
+    val volumeState by viewModel.volumeState.observeAsState(VolumeState())
     val currentSession by viewModel.currentSession.observeAsState(
         Session(
             title = "", lastSessionTime = System.currentTimeMillis()
@@ -95,6 +100,9 @@ fun MainPage(viewModel: MainPageViewModel) {
 
     var text by remember { mutableStateOf("") }
     var isVisible by remember { mutableStateOf(false) }
+
+
+
     Box(modifier = Modifier.fillMaxSize()) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val (topR, listR, bottomR) = createRefs()
@@ -141,20 +149,38 @@ fun MainPage(viewModel: MainPageViewModel) {
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             })
+            val scrollListState = rememberLazyListState()
+            val scHeight = ScreenUtils.getScreenHeight() / 3 * 2
+            //对音量键的监听
+            if (volumeState.touchUp) {
+                LaunchedEffect(key1 = System.currentTimeMillis()) {
+                    L.d("volumeUp ${scrollListState.firstVisibleItemScrollOffset.toFloat()}")
+                    scrollListState.animateScrollBy((-scHeight).toFloat())
+                }
+            }
+            if (volumeState.touchDown) {
+                LaunchedEffect(key1 = System.currentTimeMillis()) {
+                    L.d("volumeDown ${scrollListState.firstVisibleItemScrollOffset.toFloat()}")
+                    scrollListState.animateScrollBy(scHeight.toFloat())
+                }
+            }
 
             //列表 list
-            Box(modifier = Modifier
-                .constrainAs(listR) {
-                    top.linkTo(topR.bottom)
-                    bottom.linkTo(bottomR.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    height = Dimension.fillToConstraints
-                    width = Dimension.fillToConstraints
-                }
-                .background(Color.White)) {
-                val scrollState = rememberLazyListState()
-                LazyColumn(state = scrollState) {
+            Box(
+                modifier = Modifier
+                    .constrainAs(listR) {
+                        top.linkTo(topR.bottom)
+                        bottom.linkTo(bottomR.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        height = Dimension.fillToConstraints
+                        width = Dimension.fillToConstraints
+                    }
+                    .background(Color.White)) {
+
+                LazyColumn(
+                    state = scrollListState,
+                ) {
                     items(messageList.size) { position ->
                         Spacer(modifier = Modifier.height(10.dp))
                         val message = messageList[position]
@@ -180,12 +206,13 @@ fun MainPage(viewModel: MainPageViewModel) {
                             Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
+
                 }
                 //列表自动滑动底部
                 if (messageList.isNotEmpty() && viewModel.isBottom) {
                     LaunchedEffect(key1 = messageList) {
                         // 当 list 更新时，自动滚动到底部
-                        scrollState.animateScrollToItem(messageList.size - 1)
+                        scrollListState.animateScrollToItem(messageList.size - 1)
                         viewModel.isBottom = false
                     }
                 }
