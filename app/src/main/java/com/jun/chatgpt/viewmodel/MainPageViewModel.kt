@@ -87,16 +87,16 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
             }
             //更新会话的最后时间
             updateSessionTime(message.sessionId)
-            _gptRepository.insertMessage(message).onSuccess {
+            _gptRepository.insertMessage(message).onSuccess { newId ->
                 val sessionId = message.sessionId
                 //为用户
                 if (message.role == Role.USER.roleName) {
                     updateMessageList(sessionId) {
-                        it.add(message)
+                        it.add(message.copy(id = newId.toInt()))
                     }
                     //添加一个空的响应
                     updateMessageList(sessionId) {
-                        it.add(Message(content = "", role = Role.ASSISTANT.roleName))
+                        it.add(Message(content = "", role = Role.ASSISTANT.roleName, id = -1))
                     }
                 } else {
                     updateMessageList(sessionId) {
@@ -113,7 +113,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                     }
                     //加入最新的插入
                     updateMessageList(sessionId) {
-                        it.add(message)
+                        it.add(message.copy(id = newId.toInt()))
                     }
                 }
                 L.d("insert message $message ${getCurrentSessionId()}")
@@ -136,6 +136,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
     //删除多个信息
     private fun deleteMultiMessage(messageList: List<Message>) {
+        L.d("delete ${messageList.toString()}")
         viewModelScope.launch {
             _gptRepository.deleteMessage(messageList).onSuccess {
                 _messageList.value = _messageList.value?.toMutableList()?.apply {
@@ -154,6 +155,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     fun retryMessage(position: Int) {
         _messageList.value?.let {
             val retryMessage = it[position]
+            L.d("retry $position")
             deleteMultiMessage(it.subList(position, it.size))
             sendMessage(retryMessage.content)
         }
@@ -384,12 +386,14 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                 //替换id
                 val newMessageList = mutableListOf<Message>().apply {
                     list.forEach {
-                        add(it.copy(sessionId = id.toInt()))
+                        add(it.copy(sessionId = id.toInt(), id = 0))
                     }
                 }
                 //插入消息
-                _gptRepository.insertMessages(newMessageList).onSuccess {
-                    _messageList.value = list
+                _gptRepository.insertMessages(newMessageList).onSuccess { idList ->
+                    val messageList = mutableListOf<Message>()
+                    idList.forEachIndexed { index, newId -> messageList.add(list[index].copy(id = newId.toInt())) }
+                    _messageList.value = messageList
                     //需要更新session列表
                     queryLeastSession()
                 }

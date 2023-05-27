@@ -53,7 +53,7 @@ class GptRepository(
         }
     }
 
-    suspend fun insertMessages(messages: List<Message>): Result<Unit> {
+    suspend fun insertMessages(messages: List<Message>): Result<List<Long>> {
         return handleException {
             _messageDao.insert(messages)
         }
