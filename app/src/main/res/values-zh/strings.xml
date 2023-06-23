@@ -26,4 +26,10 @@
     <string name="retry">重试</string>
 
     <string name="address">项目地址</string>
+
+    <string name="set_params">设置参数</string>
+    <string name="temp_title">温度</string>
+    <string name="temp_content">介于 0 和 2 之间。较高的值（如 0.8）将使输出更加随机，而较低的值（如 0.2）将使其更加集中和确定性。</string>
+    <string name="save">保存</string>
+    <string name="model_title">聊天模型</string>
 </resources>

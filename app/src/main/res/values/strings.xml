@@ -13,6 +13,8 @@
     <string name="dialog_confirm">Confirm</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="change_key">Change API Key</string>
+
+
     <string name="recommend_content">I recommend that you use the openai key you applied for to avoid the situation that the current key is unavailable</string>
 
     <string name="dialog_template_empty_tips">name cannot be empty</string>
@@ -26,4 +28,11 @@
     <string name="retry">retry</string>
 
     <string name="address">PROJECT ADDRESS</string>
+
+    <string name="set_params">Set params</string>
+
+    <string name="temp_title">Temperature</string>
+    <string name="temp_content">between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.</string>
+    <string name="save">Save</string>
+    <string name="model_title">Chat Model</string>
 </resources>

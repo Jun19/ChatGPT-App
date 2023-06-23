@@ -10,7 +10,7 @@ import com.jun.chatgpt.repository.local.MessageDao
 import com.jun.chatgpt.repository.local.SessionDao
 import com.jun.chatgpt.repository.local.TemplateDao
 import com.jun.chatgpt.repository.remote.GptApi
-import com.jun.template.common.Constants
+import com.jun.chatgpt.utils.ChatParamsHelper
 import com.jun.template.common.GlobalConfig
 import com.jun.template.common.exception.Failure
 import com.jun.template.common.net.NetworkHandler
@@ -39,7 +39,12 @@ class GptRepository(
 
     suspend fun fetchMessage(messageList: List<MessageDTO>): Result<GptResponse> {
         return handleRemoteException {
-            val gptRequest = GptRequest(messageList, Constants.CHAT_MODEL)
+            val gptRequest =
+                GptRequest(
+                    messageList,
+                    ChatParamsHelper.chatModes[ChatParamsHelper.selectPosition],
+                    ChatParamsHelper.temperature.toDouble()
+                )
             val authKey =
                 "Bearer ${GlobalConfig.apiKey}"
             val response = _gptApi.completions(authKey, gptRequest)

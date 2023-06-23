@@ -17,7 +17,7 @@ class GptErrorInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request: Request = chain.request()
         var response = chain.proceed(request)
-        if (response.code == 401 || response.code == 429 || response.code == 500) {
+        if (response.code == 401 || response.code == 429 || response.code == 500 || response.code == 404) {
             val json = response.body!!.string()
             response = Response.Builder().code(200).message("OK").request(request)
                 .protocol(response.protocol)

@@ -12,5 +12,6 @@ import com.google.gson.annotations.SerializedName
 data class GptRequest(
     @SerializedName("messages") val messages: List<MessageDTO>,
     @SerializedName("model") val model: String,
+    @SerializedName("temperature") val temperature: Double,
 )
 

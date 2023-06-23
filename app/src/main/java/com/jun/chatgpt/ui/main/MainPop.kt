@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,8 +20,10 @@ import androidx.compose.ui.window.Popup
 import com.jun.chatgpt.R
 import com.jun.chatgpt.model.Template
 import com.jun.chatgpt.ui.main.api.ApiKeyEditDialog
+import com.jun.chatgpt.ui.main.setting.ParamsSettingDialog
 import com.jun.chatgpt.ui.main.template.TemplateAddDialog
 import com.jun.chatgpt.ui.main.template.TemplateListDialog
+import com.jun.chatgpt.utils.ChatParamsHelper
 import com.jun.template.common.GlobalConfig
 import com.jun.template.common.extension.toast
 
@@ -43,6 +46,7 @@ fun MainPop(
     var isShowAdd by remember { mutableStateOf(false) }
     var isShowList by remember { mutableStateOf(false) }
     var isShowEditKey by remember { mutableStateOf(false) }
+    var isShowParamsSetting by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
     Popup(
         offset = IntOffset(0, 150),
@@ -80,6 +84,19 @@ fun MainPop(
                             Icon(Icons.Filled.Create, contentDescription = null)
                         }
                         Text(text = stringResource(id = R.string.more_template_list))
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                isShowParamsSetting = true
+                            },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton({}) {
+                            Icon(Icons.Filled.Settings, contentDescription = null)
+                        }
+                        Text(text = stringResource(id = R.string.set_params))
                     }
                     Row(
                         modifier = Modifier
@@ -124,6 +141,20 @@ fun MainPop(
             ctx.toast(R.string.dialog_key_change_tips)
             isShowEditKey = false
         })
+    }
+    if (isShowParamsSetting) {
+        ParamsSettingDialog(
+            ChatParamsHelper.temperature,
+            ChatParamsHelper.selectPosition,
+            onCancel = {
+                isShowParamsSetting = false
+            },
+            onFirm = { temperature, index ->
+                ChatParamsHelper.temperature = temperature
+                ChatParamsHelper.selectPosition = index
+                ctx.toast(R.string.dialog_key_change_tips)
+                isShowParamsSetting = false
+            })
     }
 }
 
