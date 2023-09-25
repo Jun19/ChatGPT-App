@@ -191,7 +191,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                             }
                         } else if (message.role == Role.USER.roleName) {
                             RightView(message, {
-                                viewModel.alreadyDeleteMessage = message
+                                viewModel.deletePosition = position
                                 isShowDeleteDialog = true
                             }, {
                                 viewModel.retryPosition = position
@@ -199,7 +199,8 @@ fun MainPage(viewModel: MainPageViewModel) {
                             })
                         } else if (message.role == Role.SYSTEM.roleName) {
                             TipsView(message) {
-                                viewModel.deleteMessage(message)
+                                viewModel.deletePosition = position
+                                viewModel.deleteMessage(viewModel.deletePosition)
                             }
                         }
                         if (position == messageList.size - 1) {
@@ -296,7 +297,9 @@ fun MainPage(viewModel: MainPageViewModel) {
             CommonTipsDialog(text = stringResource(id = R.string.delete_tips),
                 onCancel = { isShowDeleteDialog = false },
                 onFirm = {
-                    viewModel.alreadyDeleteMessage?.let { it1 -> viewModel.deleteMessage(it1) }
+                    if (viewModel.deletePosition != -1) {
+                        viewModel.deleteMessage(viewModel.deletePosition)
+                    }
                     isShowDeleteDialog = false
                 })
         }
