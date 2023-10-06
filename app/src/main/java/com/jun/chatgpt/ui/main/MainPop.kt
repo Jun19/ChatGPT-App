@@ -67,9 +67,11 @@ fun MainPop(
                             },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton({}) {
-                            Icon(Icons.Filled.Add, contentDescription = null)
-                        }
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = null,
+                            modifier = buttonModifySettings()
+                        )
                         Text(text = stringResource(id = R.string.more_templates_create))
                     }
                     Row(
@@ -80,9 +82,12 @@ fun MainPop(
                             },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton({}) {
-                            Icon(Icons.Filled.Create, contentDescription = null)
-                        }
+
+                        Icon(
+                            Icons.Filled.Create,
+                            contentDescription = null,
+                            modifier = buttonModifySettings()
+                        )
                         Text(text = stringResource(id = R.string.more_template_list))
                     }
                     Row(
@@ -93,9 +98,13 @@ fun MainPop(
                             },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton({}) {
-                            Icon(Icons.Filled.Settings, contentDescription = null)
-                        }
+
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = null,
+                            modifier = buttonModifySettings()
+                        )
+
                         Text(text = stringResource(id = R.string.set_params))
                     }
                     Row(
@@ -106,9 +115,11 @@ fun MainPop(
                             },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton({}) {
-                            Icon(Icons.Filled.Lock, contentDescription = null)
-                        }
+                        Icon(
+                            Icons.Filled.Lock,
+                            contentDescription = null,
+                            modifier = buttonModifySettings()
+                        )
                         Text(text = stringResource(id = R.string.change_key))
                     }
                 }
@@ -156,6 +167,12 @@ fun MainPop(
                 isShowParamsSetting = false
             })
     }
+}
+
+private fun buttonModifySettings(): Modifier {
+    return Modifier
+        .size(45.0.dp)
+        .padding(10.0.dp)
 }
 
 @Preview

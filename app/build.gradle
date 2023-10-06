@@ -10,7 +10,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.jun.chatgpt"
+        applicationId "com.jun.chatgpt2"
         minSdk 21
         targetSdk 33
         versionCode 2

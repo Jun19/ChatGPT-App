@@ -55,7 +55,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     var retryPosition: Int = -1
 
     //删除的位置
-    var deletePosition: Int = -1
+    var deleteSubPosition: Int = -1
 
     private val _volumeState = MutableLiveData<VolumeState>()
     val volumeState: LiveData<VolumeState> = _volumeState
@@ -127,10 +127,22 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
         }
     }
 
-    fun deleteMessage(position: Int) {
+    fun deleteMessage(message: Message) {
+        viewModelScope.launch {
+            _gptRepository.deleteMessage(message).onSuccess {
+                _messageList.value = _messageList.value?.toMutableList()?.apply {
+                    this.remove(message)
+                }
+                alreadyDeleteMessage = null
+            }
+        }
+    }
+
+    fun deleteSubMessage(position: Int) {
         viewModelScope.launch {
             _messageList.value?.let {
                 deleteMultiMessage(it.subList(position, it.size))
+                deleteSubPosition = -1
             }
         }
     }

@@ -191,7 +191,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                             }
                         } else if (message.role == Role.USER.roleName) {
                             RightView(message, {
-                                viewModel.deletePosition = position
+                                viewModel.deleteSubPosition = position
                                 isShowDeleteDialog = true
                             }, {
                                 viewModel.retryPosition = position
@@ -199,8 +199,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                             })
                         } else if (message.role == Role.SYSTEM.roleName) {
                             TipsView(message) {
-                                viewModel.deletePosition = position
-                                viewModel.deleteMessage(viewModel.deletePosition)
+                                viewModel.deleteMessage(message)
                             }
                         }
                         if (position == messageList.size - 1) {
@@ -297,10 +296,11 @@ fun MainPage(viewModel: MainPageViewModel) {
             CommonTipsDialog(text = stringResource(id = R.string.delete_tips),
                 onCancel = { isShowDeleteDialog = false },
                 onFirm = {
-                    if (viewModel.deletePosition != -1) {
-                        viewModel.deleteMessage(viewModel.deletePosition)
-                    }
                     isShowDeleteDialog = false
+                    viewModel.alreadyDeleteMessage?.let { it1 -> viewModel.deleteMessage(it1) }
+                    if (viewModel.deleteSubPosition != -1) {
+                        viewModel.deleteSubMessage(viewModel.deleteSubPosition)
+                    }
                 })
         }
 
@@ -330,7 +330,6 @@ fun LeftView(message: Message, OnDelete: () -> Unit) {
             .fillMaxWidth()
     ) {
         val (head, text, delete) = createRefs()
-
         Image(painter = painterResource(id = R.drawable.ic_gpt),
             contentDescription = "",
             modifier = Modifier
