@@ -11,12 +11,13 @@ import com.jun.template.common.utils.persistence.Preference
 object ChatParamsHelper {
     var selectPosition: Int by Preference("model_position", 0)
     var temperature: String by Preference("model_params_temperature", "1")
+    var followContent: String by Preference("follow_content", "")
 
     val chatModes = listOf(
         "gpt-3.5-turbo-16k-0613",
         "gpt-3.5-turbo-0301",
-//        "gpt-3.5-turbo-0613",
-//        "gpt-3.5-turbo-16k",
+        "gpt-3.5-turbo-0613",
+        "gpt-3.5-turbo-16k",
 //        "gpt-3.5-turbo",
 //        "gpt-4",
 //        "gpt-4-0613",

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.jun.chatgpt.R
+import com.jun.chatgpt.model.ParamsSet
 import com.jun.chatgpt.model.Template
 import com.jun.chatgpt.ui.main.api.ApiKeyEditDialog
 import com.jun.chatgpt.ui.main.setting.ParamsSettingDialog
@@ -155,14 +156,14 @@ fun MainPop(
     }
     if (isShowParamsSetting) {
         ParamsSettingDialog(
-            ChatParamsHelper.temperature,
-            ChatParamsHelper.selectPosition,
+            ParamsSet(),
             onCancel = {
                 isShowParamsSetting = false
             },
-            onFirm = { temperature, index ->
-                ChatParamsHelper.temperature = temperature
-                ChatParamsHelper.selectPosition = index
+            onFirm = { paramsSet ->
+                ChatParamsHelper.temperature = paramsSet.temperature
+                ChatParamsHelper.selectPosition = paramsSet.selectPosition
+                ChatParamsHelper.followContent = paramsSet.followContent
                 ctx.toast(R.string.dialog_key_change_tips)
                 isShowParamsSetting = false
             })

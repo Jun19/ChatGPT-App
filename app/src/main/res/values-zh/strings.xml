@@ -32,4 +32,7 @@
     <string name="temp_content">介于 0 和 2 之间。较高的值（如 0.8）将使输出更加随机，而较低的值（如 0.2）将使其更加集中和确定性。</string>
     <string name="save">保存</string>
     <string name="model_title">聊天模型</string>
+
+    <string name="follow_content">跟随内容</string>
+
 </resources>

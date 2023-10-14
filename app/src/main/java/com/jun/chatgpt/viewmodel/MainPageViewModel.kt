@@ -14,6 +14,7 @@ import com.jun.chatgpt.model.Template
 import com.jun.chatgpt.model.enums.Role
 import com.jun.chatgpt.model.state.VolumeState
 import com.jun.chatgpt.repository.GptRepository
+import com.jun.chatgpt.utils.ChatParamsHelper
 import com.jun.template.common.exception.Failure
 import com.jun.template.common.utils.L
 import kotlinx.coroutines.CancellationException
@@ -170,21 +171,24 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
             val retryMessage = it[position]
             L.d("retry $position")
             deleteMultiMessage(it.subList(position, it.size))
-            sendMessage(retryMessage.content)
+            sendMessage(retryMessage.content, true)
         }
     }
 
     //发送消息
-    fun sendMessage(content: String) {
+    fun sendMessage(content: String, retry: Boolean = false) {
         //同一会话才取消
         if (lastSessionId == getCurrentSessionId()) {
             L.d("上一个任务还没完成的话 被我取消咯")
             task?.cancel(null)
         }
+
         task = viewModelScope.launch {
             val sessionId = getCurrentSessionId()
             val message = Message(
-                sessionId = sessionId, content = content, role = Role.USER.roleName
+                sessionId = sessionId,
+                content = if (retry) content else "$content ${ChatParamsHelper.followContent}",
+                role = Role.USER.roleName
             )
             lastSessionId = sessionId
 
@@ -430,12 +434,14 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
     //过滤开头为\n的数据
     private fun filterDrayMessage(message: String): String {
-        var newMessage = message
-        val nextLineSymbol = "\n"
-        while (newMessage.startsWith(nextLineSymbol)) {
-            val index = newMessage.indexOf("\n")
-            newMessage = newMessage.substring(index + nextLineSymbol.length, newMessage.length)
-        }
+
+        var newMessage = message.replace("\n\n", "\n")
+
+//        val nextLineSymbol = "\n"
+//        while (newMessage.startsWith(nextLineSymbol)) {
+//            val index = newMessage.indexOf("\n")
+//            newMessage = newMessage.substring(index + nextLineSymbol.length, newMessage.length)
+//        }
         return newMessage
     }
 
