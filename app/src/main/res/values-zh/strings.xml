@@ -34,5 +34,6 @@
     <string name="model_title">聊天模型</string>
 
     <string name="follow_content">跟随内容</string>
+    <string name="font_size">字体大小</string>
 
 </resources>

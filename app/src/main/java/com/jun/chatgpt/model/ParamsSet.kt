@@ -10,4 +10,6 @@ data class ParamsSet(
     var selectPosition: Int = ChatParamsHelper.selectPosition,
     //跟随文本
     var followContent: String = ChatParamsHelper.followContent,
+    //字体大小
+    var fontSize: Int = ChatParamsHelper.fontSize,
 )

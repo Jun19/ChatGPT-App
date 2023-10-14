@@ -70,6 +70,7 @@ import com.jun.chatgpt.model.enums.Role
 import com.jun.chatgpt.model.state.VolumeState
 import com.jun.chatgpt.ui.main.common.CommonTipsDialog
 import com.jun.chatgpt.ui.theme.longClick
+import com.jun.chatgpt.utils.ChatParamsHelper
 import com.jun.chatgpt.viewmodel.MainPageViewModel
 import com.jun.chatgpt.widget.TextCursorBlinking
 import com.jun.template.common.utils.L
@@ -88,6 +89,8 @@ fun MainPage(viewModel: MainPageViewModel) {
     val sessionList by viewModel.sessionList.observeAsState(emptyList())
     val templateList by viewModel.templateList.observeAsState(emptyList())
     val volumeState by viewModel.volumeState.observeAsState(VolumeState())
+    val fontSize by viewModel.fontSize.observeAsState(ChatParamsHelper.fontSize)
+
     val currentSession by viewModel.currentSession.observeAsState(
         Session(
             title = "", lastSessionTime = System.currentTimeMillis()
@@ -185,12 +188,12 @@ fun MainPage(viewModel: MainPageViewModel) {
                         Spacer(modifier = Modifier.height(10.dp))
                         val message = messageList[position]
                         if (message.role == Role.ASSISTANT.roleName) {
-                            LeftView(message) {
+                            LeftView(message, fontSize) {
                                 viewModel.alreadyDeleteMessage = message
                                 isShowDeleteDialog = true
                             }
                         } else if (message.role == Role.USER.roleName) {
-                            RightView(message, {
+                            RightView(message, fontSize, {
                                 viewModel.deleteSubPosition = position
                                 isShowDeleteDialog = true
                             }, {
@@ -288,6 +291,8 @@ fun MainPage(viewModel: MainPageViewModel) {
                 },
                 onTemplateLoad = {
                     viewModel.loadTemplate(it)
+                }, onChangeFont = {
+                    viewModel.setFontSize(it)
                 })
         }
 
@@ -321,16 +326,18 @@ fun MainPage(viewModel: MainPageViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LeftView(message: Message, OnDelete: () -> Unit) {
+fun LeftView(message: Message, fontSize: Int, OnDelete: () -> Unit) {
     val content = message.content
     var isDeleteVisible by remember { mutableStateOf(false) }
+
     ConstraintLayout(
         modifier = Modifier
             .padding(start = 10.dp, end = 108.dp)
             .fillMaxWidth()
     ) {
         val (head, text, delete) = createRefs()
-        Image(painter = painterResource(id = R.drawable.ic_gpt),
+        Image(
+            painter = painterResource(id = R.drawable.ic_gpt),
             contentDescription = "",
             modifier = Modifier
                 .constrainAs(head) {
@@ -340,12 +347,13 @@ fun LeftView(message: Message, OnDelete: () -> Unit) {
                 .size(45.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop)
-        SelectionContainer(modifier = Modifier
-            .padding(start = 7.dp)
-            .constrainAs(text) {
-                start.linkTo(head.end)
-                top.linkTo(head.top)
-            }) {
+        SelectionContainer(
+            modifier = Modifier
+                .padding(start = 7.dp)
+                .constrainAs(text) {
+                    start.linkTo(head.end)
+                    top.linkTo(head.top)
+                }) {
             Card(modifier = Modifier.clickable {
                 isDeleteVisible = !isDeleteVisible
             }) {
@@ -355,7 +363,10 @@ fun LeftView(message: Message, OnDelete: () -> Unit) {
                     )
                 } else {
                     Text(
-                        text = content, color = Color.Black, modifier = Modifier.padding(15.dp)
+                        text = content,
+                        color = Color.Black,
+                        modifier = Modifier.padding(15.dp),
+                        fontSize = fontSize.sp
                     )
                 }
             }
@@ -375,7 +386,7 @@ fun LeftView(message: Message, OnDelete: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RightView(message: Message, onDelete: () -> Unit, onRetry: () -> Unit) {
+fun RightView(message: Message, fontSize: Int, onDelete: () -> Unit, onRetry: () -> Unit) {
     val content = message.content
     var isOperateVisible by remember { mutableStateOf(false) }
 
@@ -396,7 +407,8 @@ fun RightView(message: Message, onDelete: () -> Unit, onRetry: () -> Unit) {
             }) {
                 Card(modifier = Modifier.padding(end = 7.dp)) {
                     Text(
-                        text = content, color = Color.Black, modifier = Modifier.padding(15.dp)
+                        text = content, color = Color.Black, modifier = Modifier.padding(15.dp),
+                        fontSize = fontSize.sp
                     )
                 }
             }

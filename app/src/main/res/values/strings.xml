@@ -37,7 +37,7 @@
     <string name="model_title">Chat Model</string>
 
     <string name="follow_content">Follow Content</string>
+    <string name="font_size">Font Size</string>
 
-    <string name="toast_cancel_task">cancel task</string>
 
 </resources>

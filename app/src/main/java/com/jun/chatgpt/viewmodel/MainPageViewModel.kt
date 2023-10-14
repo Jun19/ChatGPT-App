@@ -46,6 +46,9 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     private val _templateList = MutableLiveData<List<Template>>()
     val templateList: LiveData<List<Template>> = _templateList
 
+    private val _fontSize = MutableLiveData<Int>()
+    val fontSize: LiveData<Int> = _fontSize
+
     //是否列表会自动滑到底部
     var isBottom = true
 
@@ -448,6 +451,10 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
     fun setVolumeState(touchDown: Boolean = false, touchUp: Boolean = false) {
         _volumeState.value = VolumeState()
         _volumeState.value = VolumeState(touchDown, touchUp)
+    }
+
+    fun setFontSize(fontSize: Int) {
+        _fontSize.value = fontSize
     }
 
 }

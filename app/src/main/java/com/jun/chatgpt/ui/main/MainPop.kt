@@ -43,6 +43,7 @@ fun MainPop(
     onSaveTemplate: (String) -> Unit,
     onTemplateLoad: (Template) -> Unit,
     onTemplateDelete: (Template) -> Unit,
+    onChangeFont: (Int) -> Unit,
 ) {
     var isShowAdd by remember { mutableStateOf(false) }
     var isShowList by remember { mutableStateOf(false) }
@@ -164,6 +165,8 @@ fun MainPop(
                 ChatParamsHelper.temperature = paramsSet.temperature
                 ChatParamsHelper.selectPosition = paramsSet.selectPosition
                 ChatParamsHelper.followContent = paramsSet.followContent
+                ChatParamsHelper.fontSize = paramsSet.fontSize
+                onChangeFont.invoke(ChatParamsHelper.fontSize)
                 ctx.toast(R.string.dialog_key_change_tips)
                 isShowParamsSetting = false
             })
@@ -179,5 +182,5 @@ private fun buttonModifySettings(): Modifier {
 @Preview
 @Composable
 fun PopPreview() {
-    MainPop(mutableListOf(), 1, {}, {}, {}, {})
+    MainPop(mutableListOf(), 1, {}, {}, {}, {}, {})
 }

@@ -42,25 +42,20 @@ fun ParamsSettingDialog(
     onFirm: (ParamsSet) -> Unit
 ) {
     val ctx = LocalContext.current
+    var newParams = paramsSet
     AlertDialog(
         onDismissRequest = { onCancel.invoke() },
         title = { Text(text = stringResource(id = R.string.set_params)) },
         text = {
-            DialogContent(paramsSet, {
-                paramsSet.followContent = it
-            }, {
-                paramsSet.temperature = it
-            }, {
-                paramsSet.selectPosition = it
-            })
+            DialogContent(paramsSet) { newParams = it }
         },
         confirmButton = {
             Button(onClick = {
-                if (paramsSet.temperature.isEmpty()) {
+                if (newParams.temperature.isEmpty()) {
                     ctx.toast(R.string.dialog_api_empty_tips)
                     return@Button
                 }
-                onFirm.invoke(paramsSet)
+                onFirm.invoke(newParams)
             }) {
                 Text(text = stringResource(id = R.string.save))
             }
@@ -78,15 +73,37 @@ fun ParamsSettingDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DialogContent(
-    paramsSet: ParamsSet, onFollowChangeText: (String) -> Unit,
-    onTemplateChangeText: (String) -> Unit,
-    onItemClick: (Int) -> Unit
+    paramsSet: ParamsSet,
+    onChange: (ParamsSet) -> Unit,
 ) {
     var myPosition by remember { mutableStateOf(paramsSet.selectPosition) }
     var myTemplate by remember { mutableStateOf(paramsSet.temperature) }
     var myFollowContent by remember { mutableStateOf(paramsSet.followContent) }
+    var myFontSize by remember { mutableStateOf(paramsSet.fontSize) }
 
     Column() {
+        Text(
+            text = stringResource(id = R.string.font_size),
+            fontSize = 20.sp,
+            color = Color.Black
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        TextField(
+            value = myFontSize.toString(),
+            onValueChange = {
+                kotlin.runCatching {
+                    it.toInt()
+                }.onSuccess {
+                    myFontSize = it
+                    paramsSet.fontSize = myFontSize
+                    onChange.invoke(paramsSet)
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
         Text(
             text = stringResource(id = R.string.follow_content),
             fontSize = 20.sp,
@@ -96,8 +113,8 @@ private fun DialogContent(
         TextField(
             value = myFollowContent,
             onValueChange = {
-                myFollowContent = it
-                onFollowChangeText.invoke(myFollowContent)
+                paramsSet.followContent = myFollowContent
+                onChange.invoke(paramsSet)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -110,8 +127,8 @@ private fun DialogContent(
         TextField(
             value = myTemplate,
             onValueChange = {
-                myTemplate = it
-                onTemplateChangeText.invoke(myTemplate)
+                paramsSet.temperature = myTemplate
+                onChange.invoke(paramsSet)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -133,8 +150,8 @@ private fun DialogContent(
                         indication = null,
                         interactionSource = MutableInteractionSource()
                     ) {
-                        myPosition = position
-                        onItemClick.invoke(position)
+                        paramsSet.selectPosition = myPosition
+                        onChange.invoke(paramsSet)
                     }) {
 
                     ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
