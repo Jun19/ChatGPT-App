@@ -150,6 +150,7 @@ private fun DialogContent(
                         indication = null,
                         interactionSource = MutableInteractionSource()
                     ) {
+                        myPosition = position
                         paramsSet.selectPosition = myPosition
                         onChange.invoke(paramsSet)
                     }) {
