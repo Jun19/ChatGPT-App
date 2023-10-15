@@ -113,6 +113,7 @@ private fun DialogContent(
         TextField(
             value = myFollowContent,
             onValueChange = {
+                myFollowContent = it
                 paramsSet.followContent = myFollowContent
                 onChange.invoke(paramsSet)
             },
@@ -127,6 +128,7 @@ private fun DialogContent(
         TextField(
             value = myTemplate,
             onValueChange = {
+                myTemplate = it
                 paramsSet.temperature = myTemplate
                 onChange.invoke(paramsSet)
             },
