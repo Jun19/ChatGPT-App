@@ -10,14 +10,14 @@ object Constants {
     const val LOGGER_TAG = "opengpt"
     const val DATABASE_NAME = "opengpt"
     const val PREFERENCE_NAME = "opengpt"
-    const val BASE_API_URL = "https://api.openai.com/"
+    const val BASE_API_URL = "https://api.nbfaka.com/"
 
     //BASE64 加密
-    const val OPEN_AI_KEY = "c2stVmhJdGhXMk9kM3RlZ0w3VnU4RXhUM0JsYmtGSmt6czJOc2xjMUlvbDQ5QUF4NTNt"
+    const val OPEN_AI_KEY = "sk-W6Yy3M252Qh7X85Y28Fd725fB4Ed46AbB9233eA6D9354cEc"
 
     const val CHAT_MODEL = "gpt-3.5-turbo-0301"
 
-    const val NETWORK_TIME_OUT = 90L
+    const val NETWORK_TIME_OUT = 900L
 
     const val SOURCE_URL = "https://github.com/Jun19/ChatGPT-App"
 
@@ -29,5 +29,6 @@ object Constants {
     object Config {
         const val TEMP = "temp"
         const val API_KEY = "api_key"
+        const val BASE_URL = "base_url"
     }
 }

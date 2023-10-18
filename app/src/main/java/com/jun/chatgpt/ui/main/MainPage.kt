@@ -118,7 +118,7 @@ fun MainPage(viewModel: MainPageViewModel) {
                     val scrollState = rememberScrollState(0)
                     Box(modifier = Modifier.horizontalScroll(scrollState)) {
                         val title =
-                            currentSession.title.ifEmpty { stringResource(id = R.string.app_title) }
+                            currentSession.title.ifEmpty { stringResource(id = R.string.app_name) }
                         Text(
                             title, maxLines = 1, style = MaterialTheme.typography.bodyLarge
                         )

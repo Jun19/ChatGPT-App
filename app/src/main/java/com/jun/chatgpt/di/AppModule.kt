@@ -5,7 +5,7 @@ import com.jun.chatgpt.repository.GptRepository
 import com.jun.chatgpt.repository.local.AppDatabase
 import com.jun.chatgpt.repository.remote.GptApi
 import com.jun.chatgpt.viewmodel.MainPageViewModel
-import com.jun.template.common.Constants
+import com.jun.template.common.GlobalConfig
 import com.jun.template.common.net.NetworkHandler
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -22,7 +22,7 @@ val appModule = module {
         MyHttpClient()
     }
     single {
-        Retrofit.Builder().baseUrl(Constants.BASE_API_URL)
+        Retrofit.Builder().baseUrl(GlobalConfig.baseUrl)
             .client((get() as MyHttpClient).getClient())
             .addConverterFactory(GsonConverterFactory.create()).build()
     }

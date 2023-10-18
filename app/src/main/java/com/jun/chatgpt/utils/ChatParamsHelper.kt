@@ -13,6 +13,7 @@ object ChatParamsHelper {
     var temperature: String by Preference("model_params_temperature", "1")
     var followContent: String by Preference("follow_content", "")
     var fontSize: Int by Preference("font_size", 20)
+    var isFollow: Boolean by Preference("isFollow", false)
 
     val chatModes = listOf(
         "gpt-3.5-turbo-16k-0613",

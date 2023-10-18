@@ -190,7 +190,7 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
             val sessionId = getCurrentSessionId()
             val message = Message(
                 sessionId = sessionId,
-                content = if (retry) content else "$content ${ChatParamsHelper.followContent}",
+                content = if (retry || !ChatParamsHelper.isFollow) content else "$content ${ChatParamsHelper.followContent}",
                 role = Role.USER.roleName
             )
             lastSessionId = sessionId

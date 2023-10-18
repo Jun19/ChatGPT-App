@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -42,20 +44,19 @@ fun ParamsSettingDialog(
     onFirm: (ParamsSet) -> Unit
 ) {
     val ctx = LocalContext.current
-    var newParams = paramsSet
     AlertDialog(
         onDismissRequest = { onCancel.invoke() },
         title = { Text(text = stringResource(id = R.string.set_params)) },
         text = {
-            DialogContent(paramsSet) { newParams = it }
+            DialogContent(paramsSet)
         },
         confirmButton = {
             Button(onClick = {
-                if (newParams.temperature.isEmpty()) {
-                    ctx.toast(R.string.dialog_api_empty_tips)
+                if (paramsSet.temperature.isEmpty()) {
+                    ctx.toast(R.string.dialog_temperature_empty_tips)
                     return@Button
                 }
-                onFirm.invoke(newParams)
+                onFirm.invoke(paramsSet)
             }) {
                 Text(text = stringResource(id = R.string.save))
             }
@@ -73,13 +74,13 @@ fun ParamsSettingDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DialogContent(
-    paramsSet: ParamsSet,
-    onChange: (ParamsSet) -> Unit,
+    paramsSet: ParamsSet
 ) {
     var myPosition by remember { mutableStateOf(paramsSet.selectPosition) }
     var myTemplate by remember { mutableStateOf(paramsSet.temperature) }
     var myFollowContent by remember { mutableStateOf(paramsSet.followContent) }
     var myFontSize by remember { mutableStateOf(paramsSet.fontSize) }
+    var myIsFollow by remember { mutableStateOf(paramsSet.isFollow) }
 
     Column() {
         Text(
@@ -96,7 +97,6 @@ private fun DialogContent(
                 }.onSuccess {
                     myFontSize = it
                     paramsSet.fontSize = myFontSize
-                    onChange.invoke(paramsSet)
                 }
             },
             modifier = Modifier
@@ -104,18 +104,23 @@ private fun DialogContent(
                 .padding(),
         )
         Spacer(modifier = Modifier.padding(5.dp))
-        Text(
-            text = stringResource(id = R.string.follow_content),
-            fontSize = 20.sp,
-            color = Color.Black
-        )
+        Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(id = R.string.follow_content),
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            Checkbox(checked = myIsFollow, onCheckedChange = {
+                myIsFollow = it
+                paramsSet.isFollow = it
+            })
+        }
         Spacer(modifier = Modifier.padding(5.dp))
         TextField(
             value = myFollowContent,
             onValueChange = {
                 myFollowContent = it
                 paramsSet.followContent = myFollowContent
-                onChange.invoke(paramsSet)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -130,7 +135,6 @@ private fun DialogContent(
             onValueChange = {
                 myTemplate = it
                 paramsSet.temperature = myTemplate
-                onChange.invoke(paramsSet)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -154,7 +158,6 @@ private fun DialogContent(
                     ) {
                         myPosition = position
                         paramsSet.selectPosition = myPosition
-                        onChange.invoke(paramsSet)
                     }) {
 
                     ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
@@ -197,12 +200,8 @@ private fun DialogContent(
                                     Icon(Icons.Filled.Check, contentDescription = null)
                                 }
                             }
-
                         }
-
                     }
-
-
                 }
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -213,5 +212,5 @@ private fun DialogContent(
 @Preview
 @Composable
 fun ParamsSettingDialogPreview() {
-    ParamsSettingDialog(ParamsSet("", 0, ""), {}, {})
+    ParamsSettingDialog(ParamsSet("", 0), {}, {})
 }

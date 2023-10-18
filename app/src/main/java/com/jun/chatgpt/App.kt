@@ -2,8 +2,6 @@ package com.jun.chatgpt
 
 import android.app.Application
 import androidx.multidex.MultiDex
-import com.blankj.utilcode.util.ConvertUtils
-import com.blankj.utilcode.util.EncodeUtils
 import com.jun.chatgpt.di.allModules
 import com.jun.template.common.Constants
 import com.jun.template.common.GlobalConfig
@@ -38,8 +36,7 @@ class App : Application() {
         initKoin()
         //set openai api key
         if (GlobalConfig.apiKey.isEmpty()) {
-            GlobalConfig.apiKey =
-                ConvertUtils.bytes2String(EncodeUtils.base64Decode(Constants.OPEN_AI_KEY))
+            GlobalConfig.apiKey = Constants.OPEN_AI_KEY
         }
     }
 

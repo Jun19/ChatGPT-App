@@ -150,7 +150,8 @@ fun MainPop(
         ApiKeyEditDialog(onCancel = {
             isShowEditKey = false
         }, onFirm = {
-            GlobalConfig.apiKey = it
+            GlobalConfig.apiKey = it.apiKey
+            GlobalConfig.baseUrl = it.baseUrl
             ctx.toast(R.string.dialog_key_change_tips)
             isShowEditKey = false
         })
@@ -166,6 +167,7 @@ fun MainPop(
                 ChatParamsHelper.selectPosition = paramsSet.selectPosition
                 ChatParamsHelper.followContent = paramsSet.followContent
                 ChatParamsHelper.fontSize = paramsSet.fontSize
+                ChatParamsHelper.isFollow = paramsSet.isFollow
                 onChangeFont.invoke(ChatParamsHelper.fontSize)
                 ctx.toast(R.string.dialog_key_change_tips)
                 isShowParamsSetting = false

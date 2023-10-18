@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">ChatGPT</string>
-    <string name="app_title">ChatGPT</string>
+    <string name="app_name">ChatGPT-Multi</string>
     <string name="error_tips">错误提示:</string>
     <string name="btn_send">发送</string>
     <string name="bar_session">会话列表:</string>
@@ -17,7 +16,10 @@
 
     <string name="dialog_template_empty_tips">名称不能为空</string>
     <string name="dialog_api_empty_tips">api key 不能为空</string>
+    <string name="dialog_temperature_empty_tips">温度不能为空</string>
     <string name="dialog_template_add_tips">你必须先发送一些消息在当前会话</string>
+    <string name="dialog_domain_empty_tips">域名不能为空</string>
+
     <string name="dialog_save_success_tips">保存成功</string>
     <string name="dialog_key_change_tips">修改成功</string>
     <string name="apply">申请地址</string>
@@ -35,5 +37,7 @@
 
     <string name="follow_content">跟随内容</string>
     <string name="font_size">字体大小</string>
+    <string name="request_domain">请求域名</string>
+
 
 </resources>

@@ -8,6 +8,8 @@ data class ParamsSet(
     var temperature: String = ChatParamsHelper.temperature,
     //当前模型index
     var selectPosition: Int = ChatParamsHelper.selectPosition,
+    //是否跟随
+    var isFollow: Boolean = ChatParamsHelper.isFollow,
     //跟随文本
     var followContent: String = ChatParamsHelper.followContent,
     //字体大小

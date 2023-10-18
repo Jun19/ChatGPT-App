@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -17,8 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jun.chatgpt.R
+import com.jun.chatgpt.model.RequestSet
 import com.jun.template.common.Constants
-import com.jun.template.common.GlobalConfig
 import com.jun.template.common.extension.toast
 
 /**
@@ -28,24 +29,26 @@ import com.jun.template.common.extension.toast
  * @time 2023/3/12
  */
 @Composable
-fun ApiKeyEditDialog(onCancel: () -> Unit, onFirm: (String) -> Unit) {
-    var apiKey = ""
+fun ApiKeyEditDialog(onCancel: () -> Unit, onFirm: (RequestSet) -> Unit) {
     val ctx = LocalContext.current
+    val requestSet = RequestSet()
     AlertDialog(
         onDismissRequest = { onCancel.invoke() },
         title = { Text(text = stringResource(id = R.string.change_key)) },
         text = {
-            DialogContent() {
-                apiKey = it
-            }
+            DialogContent(requestSet)
         },
         confirmButton = {
             Button(onClick = {
-                if (apiKey.isEmpty()) {
+                if (requestSet.apiKey.isEmpty()) {
                     ctx.toast(R.string.dialog_api_empty_tips)
                     return@Button
                 }
-                onFirm.invoke(apiKey)
+                if (requestSet.baseUrl.isEmpty()) {
+                    ctx.toast(R.string.dialog_domain_empty_tips)
+                    return@Button
+                }
+                onFirm.invoke(requestSet)
             }) {
                 Text(text = stringResource(id = R.string.dialog_confirm))
             }
@@ -62,12 +65,30 @@ fun ApiKeyEditDialog(onCancel: () -> Unit, onFirm: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DialogContent(onChangeText: (String) -> Unit) {
-    var text by remember { mutableStateOf(GlobalConfig.apiKey) }
+private fun DialogContent(requestSet: RequestSet) {
     val ctx = LocalContext.current
+    var baseUrl by remember { mutableStateOf(requestSet.baseUrl) }
+    var apiKey by remember { mutableStateOf(requestSet.apiKey) }
     Column() {
+        Text(
+            text = stringResource(id = R.string.request_domain),
+            fontSize = 20.sp,
+            color = Color.Black
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        TextField(
+            value = baseUrl,
+            onValueChange = {
+                baseUrl = it
+                requestSet.baseUrl = baseUrl
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
         Text(text = stringResource(id = R.string.recommend_content))
-        Spacer(modifier = Modifier.padding(10.dp))
+        Spacer(modifier = Modifier.padding(5.dp))
         Text(
             modifier = Modifier
                 .clickable {
@@ -81,10 +102,10 @@ private fun DialogContent(onChangeText: (String) -> Unit) {
         )
         Spacer(modifier = Modifier.padding(10.dp))
         TextField(
-            value = text,
+            value = apiKey,
             onValueChange = {
-                text = it
-                onChangeText.invoke(text)
+                apiKey = it
+                requestSet.apiKey = it
             },
             modifier = Modifier
                 .fillMaxWidth()

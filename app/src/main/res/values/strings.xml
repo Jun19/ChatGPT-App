@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">ChatGPT</string>
-    <string name="app_title">ChatGPT</string>
+    <string name="app_name">ChatGPT-Multi</string>
     <string name="error_tips">Error Tips :</string>
     <string name="btn_send">Send</string>
     <string name="bar_session">Session List:</string>
@@ -19,6 +18,8 @@
 
     <string name="dialog_template_empty_tips">name cannot be empty</string>
     <string name="dialog_api_empty_tips">api key cannot be empty</string>
+    <string name="dialog_temperature_empty_tips">temperature cannot be empty</string>
+    <string name="dialog_domain_empty_tips">domain cannot be empty</string>
     <string name="dialog_template_add_tips">You must first send some messages in the current session</string>
     <string name="dialog_save_success_tips">Saved successfully</string>
     <string name="dialog_key_change_tips">Changed successfully</string>
@@ -38,6 +39,8 @@
 
     <string name="follow_content">Follow Content</string>
     <string name="font_size">Font Size</string>
+
+    <string name="request_domain">Request Domain</string>
 
 
 </resources>
