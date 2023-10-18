@@ -201,9 +201,20 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
             _gptRepository.fetchMessage(mutableListOf<MessageDTO>().apply {
                 //把之前聊天记录给带上 并且不带上系统提示
-                _messageList.value?.filter { it.role != Role.SYSTEM.roleName }?.forEach {
+
+                var filter = _messageList.value?.filter { it.role != Role.SYSTEM.roleName }
+                    ?: mutableListOf()
+                val limitSize = ChatParamsHelper.limitSize.toInt()
+                if (limitSize != 0 && filter.size > limitSize) {
+                    filter = filter.subList(
+                        filter.size - limitSize,
+                        filter.size
+                    )
+                }
+                filter.forEach {
                     add(it.toDTO())
                 }
+
                 //把自己写的放到数据库
                 add(message.toDTO())
             }).onSuccess {

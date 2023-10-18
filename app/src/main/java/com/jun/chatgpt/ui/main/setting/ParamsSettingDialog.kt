@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
@@ -81,8 +83,15 @@ private fun DialogContent(
     var myFollowContent by remember { mutableStateOf(paramsSet.followContent) }
     var myFontSize by remember { mutableStateOf(paramsSet.fontSize) }
     var myIsFollow by remember { mutableStateOf(paramsSet.isFollow) }
+    var myLimitSize by remember { mutableStateOf(paramsSet.limitSize) }
 
-    Column() {
+    val scrollState = rememberScrollState(0)
+
+    Column(
+        modifier = Modifier
+            .height(400.dp)
+            .verticalScroll(scrollState)
+    ) {
         Text(
             text = stringResource(id = R.string.font_size),
             fontSize = 20.sp,
@@ -97,6 +106,27 @@ private fun DialogContent(
                 }.onSuccess {
                     myFontSize = it
                     paramsSet.fontSize = myFontSize
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        Text(
+            text = stringResource(id = R.string.context_limit),
+            fontSize = 20.sp,
+            color = Color.Black
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        TextField(
+            value = myLimitSize.toString(),
+            onValueChange = {
+                kotlin.runCatching {
+                    it.toLong()
+                }.onSuccess {
+                    myLimitSize = it
+                    paramsSet.limitSize = myLimitSize
                 }
             },
             modifier = Modifier

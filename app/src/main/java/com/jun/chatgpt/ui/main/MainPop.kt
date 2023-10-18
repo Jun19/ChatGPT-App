@@ -168,6 +168,7 @@ fun MainPop(
                 ChatParamsHelper.followContent = paramsSet.followContent
                 ChatParamsHelper.fontSize = paramsSet.fontSize
                 ChatParamsHelper.isFollow = paramsSet.isFollow
+                ChatParamsHelper.limitSize = paramsSet.limitSize
                 onChangeFont.invoke(ChatParamsHelper.fontSize)
                 ctx.toast(R.string.dialog_key_change_tips)
                 isShowParamsSetting = false

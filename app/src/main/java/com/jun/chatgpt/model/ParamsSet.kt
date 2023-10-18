@@ -14,4 +14,6 @@ data class ParamsSet(
     var followContent: String = ChatParamsHelper.followContent,
     //字体大小
     var fontSize: Int = ChatParamsHelper.fontSize,
+    //上下文条数限制
+    var limitSize: Long = ChatParamsHelper.limitSize,
 )
