@@ -92,84 +92,6 @@ private fun DialogContent(
             .height(400.dp)
             .verticalScroll(scrollState)
     ) {
-        Text(
-            text = stringResource(id = R.string.font_size),
-            fontSize = 20.sp,
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.padding(5.dp))
-        TextField(
-            value = myFontSize.toString(),
-            onValueChange = {
-                kotlin.runCatching {
-                    it.toInt()
-                }.onSuccess {
-                    myFontSize = it
-                    paramsSet.fontSize = myFontSize
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-        )
-        Spacer(modifier = Modifier.padding(5.dp))
-        Text(
-            text = stringResource(id = R.string.context_limit),
-            fontSize = 20.sp,
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.padding(5.dp))
-        TextField(
-            value = myLimitSize.toString(),
-            onValueChange = {
-                kotlin.runCatching {
-                    it.toLong()
-                }.onSuccess {
-                    myLimitSize = it
-                    paramsSet.limitSize = myLimitSize
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-        )
-        Spacer(modifier = Modifier.padding(5.dp))
-        Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(id = R.string.follow_content),
-                fontSize = 20.sp,
-                color = Color.Black
-            )
-            Checkbox(checked = myIsFollow, onCheckedChange = {
-                myIsFollow = it
-                paramsSet.isFollow = it
-            })
-        }
-        Spacer(modifier = Modifier.padding(5.dp))
-        TextField(
-            value = myFollowContent,
-            onValueChange = {
-                myFollowContent = it
-                paramsSet.followContent = myFollowContent
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-        )
-        Spacer(modifier = Modifier.padding(5.dp))
-        Text(text = stringResource(id = R.string.temp_title), fontSize = 20.sp, color = Color.Black)
-        Spacer(modifier = Modifier.padding(5.dp))
-        Text(text = stringResource(id = R.string.temp_content), fontSize = 10.sp)
-        TextField(
-            value = myTemplate,
-            onValueChange = {
-                myTemplate = it
-                paramsSet.temperature = myTemplate
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(),
-        )
         Spacer(modifier = Modifier.padding(5.dp))
         Text(
             text = stringResource(id = R.string.model_title),
@@ -236,6 +158,72 @@ private fun DialogContent(
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
+        Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(id = R.string.follow_content),
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            Checkbox(checked = myIsFollow, onCheckedChange = {
+                myIsFollow = it
+                paramsSet.isFollow = it
+            })
+        }
+        Spacer(modifier = Modifier.padding(5.dp))
+        TextField(
+            value = myFollowContent,
+            onValueChange = {
+                myFollowContent = it
+                paramsSet.followContent = myFollowContent
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        Text(
+            text = stringResource(id = R.string.font_size),
+            fontSize = 20.sp,
+            color = Color.Black
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        TextField(
+            value = myFontSize.toString(),
+            onValueChange = {
+                kotlin.runCatching {
+                    it.toInt()
+                }.onSuccess {
+                    myFontSize = it
+                    paramsSet.fontSize = myFontSize
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        Text(
+            text = stringResource(id = R.string.context_limit),
+            fontSize = 20.sp,
+            color = Color.Black
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        TextField(
+            value = myLimitSize.toString(),
+            onValueChange = {
+                kotlin.runCatching {
+                    it.toLong()
+                }.onSuccess {
+                    myLimitSize = it
+                    paramsSet.limitSize = myLimitSize
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(),
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+
     }
 }
 

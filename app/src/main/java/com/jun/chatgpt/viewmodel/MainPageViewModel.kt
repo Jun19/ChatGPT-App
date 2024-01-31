@@ -188,9 +188,10 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
 
         task = viewModelScope.launch {
             val sessionId = getCurrentSessionId()
+            val messageListSize = messageList.value?.size ?: 0
             val message = Message(
                 sessionId = sessionId,
-                content = if (retry || !ChatParamsHelper.isFollow) content else "$content ${ChatParamsHelper.followContent}",
+                content = if (retry || messageListSize == 0 || !ChatParamsHelper.isFollow) content else "$content ${ChatParamsHelper.followContent}",
                 role = Role.USER.roleName
             )
             lastSessionId = sessionId
