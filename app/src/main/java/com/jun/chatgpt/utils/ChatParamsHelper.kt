@@ -15,11 +15,19 @@ object ChatParamsHelper {
     var fontSize: Int by Preference("font_size", 20)
     var limitSize: Long by Preference("limit_size", 10)
     var isFollow: Boolean by Preference("isFollow", false)
+    var isFirst0301: Boolean by Preference("isFirst0301", false)
 
+    const val GPT3_5_0301 = "gpt-3.5-turbo-0301"
+    const val GPT3_5_16K_0613 = "gpt-3.5-turbo-16k-0613"
+
+    const val GPT4 = "gpt-4"
+    const val GPT4_TURBO_PREVIEW = "gpt-4-turbo-preview"
 
     val chatModes = listOf(
-        "gpt-3.5-turbo-16k-0613",
-        "gpt-3.5-turbo-0301",
+        GPT3_5_0301,
+        GPT3_5_16K_0613,
+        GPT4_TURBO_PREVIEW,
+        GPT4
 //        "gpt-3.5-turbo-0613",
 //        "gpt-3.5-turbo-16k",
 //        "gpt-3.5-turbo",

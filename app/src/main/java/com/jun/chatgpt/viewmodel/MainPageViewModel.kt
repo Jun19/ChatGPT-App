@@ -263,15 +263,26 @@ class MainPageViewModel(private val _gptRepository: GptRepository) : ViewModel()
                 )
             )
         } else {
-            gtpResponse.choices.forEach {
-                //拿到数据后 插入到数据库
+            if (gtpResponse.choices == null) {
                 insertMessage(
                     Message(
-                        content = filterDrayMessage(it.message.content), role = it.message.role,
+                        content = "api choices is back null",
+                        role = Role.SYSTEM.roleName,
                         sessionId = sessionId,
                     )
                 )
+            } else {
+                gtpResponse.choices.forEach {
+                    //拿到数据后 插入到数据库
+                    insertMessage(
+                        Message(
+                            content = filterDrayMessage(it.message.content), role = it.message.role,
+                            sessionId = sessionId,
+                        )
+                    )
+                }
             }
+
         }
 
     }

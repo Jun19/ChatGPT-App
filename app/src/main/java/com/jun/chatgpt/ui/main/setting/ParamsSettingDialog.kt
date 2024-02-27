@@ -83,6 +83,7 @@ private fun DialogContent(
     var myFollowContent by remember { mutableStateOf(paramsSet.followContent) }
     var myFontSize by remember { mutableStateOf(paramsSet.fontSize) }
     var myIsFollow by remember { mutableStateOf(paramsSet.isFollow) }
+    var myIsFirst0301 by remember { mutableStateOf(paramsSet.isFirst0301) }
     var myLimitSize by remember { mutableStateOf(paramsSet.limitSize) }
 
     val scrollState = rememberScrollState(0)
@@ -93,11 +94,22 @@ private fun DialogContent(
             .verticalScroll(scrollState)
     ) {
         Spacer(modifier = Modifier.padding(5.dp))
-        Text(
-            text = stringResource(id = R.string.model_title),
-            fontSize = 20.sp,
-            color = Color.Black
-        )
+        Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(id = R.string.model_title),
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            Text(
+                text = stringResource(id = R.string.first_message),
+                fontSize = 12.sp,
+                color = Color.Black
+            )
+            Checkbox(checked = myIsFirst0301, onCheckedChange = {
+                myIsFirst0301 = it
+                paramsSet.isFirst0301 = it
+            })
+        }
         Spacer(modifier = Modifier.padding(5.dp))
 
         LazyColumn(modifier = Modifier.heightIn(0.dp, 200.dp)) {

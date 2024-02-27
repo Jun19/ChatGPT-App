@@ -40,6 +40,7 @@
     <string name="follow_content">跟随内容</string>
     <string name="font_size">字体大小</string>
     <string name="request_domain">请求域名</string>
+    <string name="first_message">首条0301</string>
 
 
 </resources>

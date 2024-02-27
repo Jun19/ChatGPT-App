@@ -39,10 +39,15 @@ class GptRepository(
 
     suspend fun fetchMessage(messageList: List<MessageDTO>): Result<GptResponse> {
         return handleRemoteException {
+            val model = if (messageList.size == 1 && ChatParamsHelper.isFirst0301) {
+                ChatParamsHelper.GPT3_5_0301
+            } else {
+                ChatParamsHelper.chatModes[ChatParamsHelper.selectPosition]
+            }
             val gptRequest =
                 GptRequest(
                     messageList,
-                    ChatParamsHelper.chatModes[ChatParamsHelper.selectPosition],
+                    model,
                     ChatParamsHelper.temperature.toDouble()
                 )
             val authKey =
