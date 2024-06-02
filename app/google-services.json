@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "15173959081",
+    "project_id": "c-tp-9f254",
+    "storage_bucket": "c-tp-9f254.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:15173959081:android:9a7552c8c33d577b6f18b8",
+        "android_client_info": {
+          "package_name": "com.jun.chatgpmutli"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvFJLlVJHdfwGyZdKtGLEclqR3wGQI9JI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
